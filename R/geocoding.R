@@ -3884,7 +3884,8 @@ add_pct_unionized <- function(tib, current_year = 2025, default_year = 2024)
 #' @description
 #' ⚠️ **Note:** Data must be in tibble or vector form, read parameter descriptions for formatting break down.
 #' You must have these packages installed for use of this package/function.
-#' [`Street`], [`City`], [`State`] [`Area Code`] format works best for address
+#' [`Street`], [`City`], [`State`] [`Area Code`] format works best for address.
+#' Download and unzip the file from github for access to the required data [here](https://wchan05.github.io/data_access/).
 #'
 #' Converts a vector or tibble of addresses and supplementary data into Census
 #' tract and block identifiers using \pkg{tidygeocoder}, and appends

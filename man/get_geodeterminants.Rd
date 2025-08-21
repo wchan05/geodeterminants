@@ -53,7 +53,8 @@ according to each determinants' function criteria
 \description{
 ⚠️ \strong{Note:} Data must be in tibble or vector form, read parameter descriptions for formatting break down.
 You must have these packages installed for use of this package/function.
-\code{\link{Street}}, \code{\link{City}}, \code{\link{State}} \code{\link{Area Code}} format works best for address
+\code{\link{Street}}, \code{\link{City}}, \code{\link{State}} \code{\link{Area Code}} format works best for address.
+Download and unzip the file from github for access to the required data \href{https://wchan05.github.io/data_access/}{here}.
 
 Converts a vector or tibble of addresses and supplementary data into Census
 tract and block identifiers using \pkg{tidygeocoder}, and appends

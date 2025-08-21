@@ -6,5 +6,5 @@
     These packages must be installed for proper functionality:
     **tidyverse**, **tidygeocoder**, **tibble**, **tidycensus**(API KEY),
     **tigris**, **sf**, **readxl**.
-    ***Download csv and excel files from Github.***")
+    ***You MUST download csv and excel files from [Github](https://wchan05.github.io/data_access/).***")
   }
