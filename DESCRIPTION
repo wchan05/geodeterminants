@@ -1,0 +1,16 @@
+Package: geodeterminants
+Title: Append Social Determinants of Health to Address Data
+Version: 0.0.0.9000
+Authors@R: c(
+    person(given = "Wesley", family = "Chan", 
+           email = "wesley.chan05@rutgers.edu", 
+           role = c("aut", "cre")),
+    person(given = "Steven", family = "Buyske", 
+           email = "buyske@stat.rutgers.edu", 
+           role = "aut"))
+Description: Adds social determinants of health (SDOH) data to input address vectors or tibbles containing address components. The package geocodes input addresses and links them to relevant geographic indicators such as census tracts or geographical codes. It then joins publicly available SDOH data, such as the American Community Survey (ACS) variables or data from organizations which PhenX referred, to the geographic units. Useful for health research, community analysis, or contextualizing individual-level data with area-based health factors.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
