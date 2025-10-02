@@ -48,6 +48,34 @@ keep_original_year <- function(tib)
   return(tib)
 }
 
+#' Checks for Tidy Census Key
+#'
+#' The function `check_tidycensus_key()` is used to check if the user has
+#' obtained and entered a API key that would allow them to use the Tidy Census
+#' package functions
+#'
+#' @returns TRUE if a Tidy Census Key was found and sends a message if otherwise
+#'
+#' @examples
+#' check_tidycensus_key()
+#'
+#' @importFrom tidycensus census_api_key
+#' @export
+check_tidycensus_key <- function()
+{
+  key <- census_api_key(NULL)
+
+  if(is.null(key) || key == "")
+  {
+    stop("No Census API key found. Please set one with census_api_key().")
+  }
+  else
+  {
+    message("Census API key is available.")
+    return(TRUE)
+  }
+}
+
 #' Modifies years to provide attainable and accurate data
 #'
 #' @description ⚠️ **Note:** It is important to run `keep_original_year()`
@@ -3967,6 +3995,7 @@ add_pct_unionized <- function(tib, current_year = 2025, default_year = 2024)
 #' @export
 get_geodeterminants <- function(gd_tib = NULL, gd_addresses = NULL, gd_current_year = 2025, gd_minority_group_code = NULL, gd_comparison_group_code = NULL, gd_minority_group_code_dhc = NULL, gd_minority_group_code_sf1 = NULL, gd_current_fed_min_wage = 7.25)
 {
+  check_tidycensus_key()
   if(is.null(gd_tib) && is.null(gd_addresses))
   {
     return("Address data must be provided(Tibble or Vector)")
