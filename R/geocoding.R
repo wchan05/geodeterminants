@@ -4160,6 +4160,8 @@ get_geodeterminants <- function(gd_tib = NULL, gd_addresses = NULL, gd_current_y
     cat("You selected:", names(gd_minority_group_code_sf1), "-", gd_minority_group_code_sf1, "\n")
   }
 
+  message("Fetching data... please wait. Thank you!")
+
   if(is.null(gd_tib) && is.null(gd_addresses))
   {
     return("Address data must be provided(Tibble or Vector)")
@@ -4190,6 +4192,8 @@ get_geodeterminants <- function(gd_tib = NULL, gd_addresses = NULL, gd_current_y
   gd_tib <- add_EJ_index(tib = gd_tib)
   gd_tib <- add_min_wage(tib = gd_tib, current_fed_min_wage = gd_current_fed_min_wage)
   gd_tib <- add_pct_unionized(tib = gd_tib, current_year = gd_current_year)
+
+  message("Completed!")
 
   return(gd_tib)
 }
