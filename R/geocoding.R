@@ -296,7 +296,7 @@ vector_to_tib <- function(addresses, current_year)
   {
     warning("address vector contains na values")
   }
-
+  suppressMessages({
   geocoded <- tibble(address = addresses)
   geocoded <- geocoded %>%
     mutate(actual_year = NA) %>%
@@ -304,7 +304,7 @@ vector_to_tib <- function(addresses, current_year)
     geocode(address, method = "osm", lat = lat, lon = lon) %>%
     mutate(valid_coords = (!is.na(lat) & !is.na(lon))) %>%
     reverse_geocode(lat = lat, lon = lon, method = "osm", full_results = TRUE) %>%
-    select(address = address...1, actual_year, year, lat, lon, city, state, county, country)
+    select(address = address...1, actual_year, year, lat, lon, city, state, county, country)})
 
   state_lookup <- tibble(
     state_abbr = c(state.abb, "DC", "PR", "GU", "VI", "AS", "MP"),
@@ -339,8 +339,9 @@ vector_to_tib <- function(addresses, current_year)
       next
     }
     #tract
+    suppressMessages({
     tracts_sf <- tracts(state = state_code, year = year_val, class = "sf") %>%
-      st_transform(crs = 4326)
+      st_transform(crs = 4326)})
 
     joined <- st_join(subset_sf, tracts_sf, join = st_within) %>%
       st_drop_geometry() %>%
@@ -348,8 +349,9 @@ vector_to_tib <- function(addresses, current_year)
 
     results_tract <- bind_rows(results_tract, joined)
     #county
+    suppressMessages({
     counties_sf <- counties(state = state_code, year = year_val, class = "sf") %>%
-      st_transform(crs = 4326)
+      st_transform(crs = 4326)})
 
     joined <- st_join(subset_sf, counties_sf, join = st_within) %>%
       st_drop_geometry() %>%
@@ -417,10 +419,11 @@ geo_info <- function(tib)
     stop("Input tibble must contain 'address' column")
   }
 
+  suppressMessages({
   geocoded <- tib %>% select(address, actual_year, year) %>%
     geocode(address = address, method = "osm", long = lon, lat = lat) %>%
     reverse_geocode(lat = lat, lon = lon, method = "osm", full_results = TRUE) %>%
-    select(address = address...1, actual_year, year, lat, lon, city, state, county, country)
+    select(address = address...1, actual_year, year, lat, lon, city, state, county, country)})
 
   state_lookup <- tibble(
     state_abbr = c(state.abb, "DC", "PR", "GU", "VI", "AS", "MP"),
@@ -455,8 +458,9 @@ geo_info <- function(tib)
       next
     }
     #tracts
+    suppressMessages({
     tracts_sf <- tracts(state = state_code, year = year_val, class = "sf") %>%
-      st_transform(crs = 4326)
+      st_transform(crs = 4326)})
 
     joined <- st_join(subset_sf, tracts_sf, join = st_within) %>%
       st_drop_geometry() %>%
@@ -464,8 +468,9 @@ geo_info <- function(tib)
 
     results_tract <- bind_rows(results_tract, joined)
     #county
+    suppressMessages({
     counties_sf <- counties(state = state_code, year = year_val, class = "sf") %>%
-      st_transform(crs = 4326)
+      st_transform(crs = 4326)})
 
     joined <- st_join(subset_sf, counties_sf, join = st_within) %>%
       st_drop_geometry() %>%
@@ -539,9 +544,10 @@ vector_geocode_to_tib <- function(addresses)
 
   # Makes tibble of addresses and their coordinates or NA value
   geocoded <- tibble(address = addresses)
+  suppressMessages({
   geocoded <- geocoded %>%
     tidygeocoder::geocode(address, method = "osm", lat = lat, lon = lon) %>%
-    mutate(valid_coords = (!is.na(lat) & !is.na(lon)))
+    mutate(valid_coords = (!is.na(lat) & !is.na(lon)))})
 
   return(geocoded)
 }
@@ -587,9 +593,10 @@ SDOH_reverse <- function(geo_tib)
   {
     stop(paste("Input tibble must have columns 'address', 'lat', and 'lon' for the function:", fn_name))
   }
+  suppressMessages({
   updated_tib <- geo_tib %>%
     reverse_geocode(lat = lat, long = lon, method = "osm", full_results = TRUE) %>%
-    select(address = address...1, valid_coords, city, state, county, country)
+    select(address = address...1, valid_coords, city, state, county, country)})
 
   state_lookup <- tibble(
     state_abbr = c(state.abb, "DC"),
@@ -645,11 +652,12 @@ SDOH_reverse <- function(geo_tib)
 #' @export
 add_info_cols <- function(tib)
 {
+  suppressMessages({
   new_data <- tib %>%
     tidygeocoder::geocode(address, method = "osm")
   new_data <- new_data %>%
     tidygeocoder::reverse_geocode(lat = lat, lon = long, method = "osm", full_results = TRUE) %>%
-    select(address = address...1, city, county, country, year)
+    select(address = address...1, city, county, country, year)})
     tib <- left_join(tib, new_data, by = c("address", "year"))
   return(tib)
 }
@@ -705,8 +713,9 @@ get_GEOID <- function(tib)
     stop("Input tibble must contain 'address' column")
   }
 
+  suppressMessages({
   geocoded <- tib %>%
-    geocode(address = address, method = "osm", long = lon, lat = lat)
+    geocode(address = address, method = "osm", long = lon, lat = lat)})
 
   failed_geocodes <- geocoded %>%
     filter(is.na(lon) | is.na(lat))
@@ -744,8 +753,9 @@ get_GEOID <- function(tib)
     }
 
     # Get tract shapefiles
+    suppressMessages({
     tracts_sf <- tracts(state = state_code, year = year_val, class = "sf") %>%
-      st_transform(crs = 4326)
+      st_transform(crs = 4326)})
 
     # Spatial join
     joined <- st_join(subset_sf, tracts_sf, join = st_within) %>%
@@ -813,9 +823,10 @@ get_county_geo <- function(tib)
     stop("Input tibble must contain 'address' column.")
   }
 
+  suppressMessages({
   geocoded <- tib %>%
     select(address, year, state) %>%
-    geocode(address = address, method = "osm", long = lon, lat = lat)
+    geocode(address = address, method = "osm", long = lon, lat = lat)})
 
   failed_geocodes <- geocoded %>%
     filter(is.na(lon) | is.na(lat))
@@ -853,8 +864,9 @@ get_county_geo <- function(tib)
     }
 
     # Get tract shapefiles
+    suppressMessages({
     counties_sf <- counties(state = state_code, year = year_val, class = "sf") %>%
-      st_transform(crs = 4326)
+      st_transform(crs = 4326)})
 
     # Spatial join
     joined <- st_join(subset_sf, counties_sf, join = st_within) %>%
@@ -961,6 +973,7 @@ add_education_attainment <- function(tib)
     st <- state_years$state[i]
     yr <- state_years$year[i]
     # Get total pop count for 25 yrs old +
+    suppressMessages({
     denom <- get_acs(
       geography = "tract",
       state = st,
@@ -990,7 +1003,7 @@ add_education_attainment <- function(tib)
       summarize(college_degree = sum(estimate, na.rm = TRUE), .groups = "drop") %>%
       mutate(state = st, year = yr)
     # Cleaned and Combined
-    numerator_all <- bind_rows(numerator_all, edu)
+    numerator_all <- bind_rows(numerator_all, edu)})
   }
   edu_data <- left_join(denominator_all, numerator_all, by = c("GEOID", "state", "year"))
 
@@ -1166,6 +1179,7 @@ add_dissimilarity_index <- function(tib, minority_group_code = NULL)
   {
     st <- state_years$state[i]
     yr <- state_years$year[i]
+    suppressMessages({
     tot_data_reference <- get_acs(
       geography = "county",
       variables = c(tot_pop_reference = reference_group),
@@ -1212,7 +1226,7 @@ add_dissimilarity_index <- function(tib, minority_group_code = NULL)
       select(GEOID, NAME, subject_sum = estimate) %>%
       mutate(year = yr)
     subject_num <- bind_rows(subject_num, tract_data_subject) %>%
-      distinct()
+      distinct()})
   }
   reference_num <- reference_num %>%
     mutate(
@@ -1431,6 +1445,7 @@ add_separation_index <- function(tib, comparison_group_code = NULL)
   {
     st <- state_years$state[i]
     yr <- state_years$year[i]
+    suppressMessages({
     tot_data_reference <- get_acs(
       geography = "tract",
       variables = c(tract_reference = reference_group),
@@ -1479,7 +1494,7 @@ add_separation_index <- function(tib, comparison_group_code = NULL)
     county_comp_tib <- county_comp_tib %>%
       bind_rows(count_comparison) %>%
       select(GEOID, NAME, estimate, year) %>%
-      distinct()
+      distinct()})
   }
   county_comp_tib <- county_comp_tib %>%
     mutate(
@@ -1710,6 +1725,7 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
       st <- state_years_dhc$state[i]
       yr <- state_years_dhc$decennial_year[i]
 
+      suppressMessages({
       first_dhc <- get_decennial(
         geography = "tract",
         variables = minority_group_dhc,
@@ -1756,7 +1772,7 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
         rename(rc_value_dhc = value) %>%
         mutate(decennial_year = yr)
       dhc_reference_county <- dhc_reference_county %>%
-        bind_rows(fourth_dhc)
+        bind_rows(fourth_dhc)})
     }
     state_lookup <- tibble(
       state_abbr = c(state.abb, "DC", "PR"),
@@ -1850,7 +1866,7 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
       st <- state_years_comp$state[i]
       yr <- state_years_comp$compare_2020[i]
 
-
+      suppressMessages({
       first_compare <- get_decennial(
         geography = "tract",
         variables = minority_group_comp,
@@ -1897,7 +1913,7 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
         rename(rc_value_comp = value) %>%
         mutate(compare_2020 = yr)
       comp_reference_county <- comp_reference_county %>%
-        bind_rows(fourth_compare)
+        bind_rows(fourth_compare)})
     }
     state_lookup <- tibble(
       state_abbr = c(state.abb, "DC", "PR"),
@@ -1996,6 +2012,7 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
       st <- state_years_sf1$state[i]
       yr <- state_years_sf1$decennial_year[i]
 
+      suppressMessages({
       first_sf1 <- get_decennial(
         geography = "tract",
         variables = minority_group_sf1,
@@ -2042,7 +2059,7 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
         rename(rc_value_sf1 = value) %>%
         mutate(decennial_year = yr)
       sf1_reference_county <- sf1_reference_county %>%
-        bind_rows(fourth_sf1)
+        bind_rows(fourth_sf1)})
     }
     state_lookup <- tibble(
       state_abbr = c(state.abb, "DC", "PR"),
@@ -2200,6 +2217,7 @@ add_concentrated_poverty <- function(tib)
     yr <- state_years$year[i]
     if(yr > 2014)
     {
+      suppressMessages({
       below_data <- get_acs(geography = "county",
                             variables = c(below_pov_lvl = "S1701_C02_046"),
                             tables = "S1701",
@@ -2224,11 +2242,12 @@ add_concentrated_poverty <- function(tib)
                                     year = yr,
                                     state = st,
                                     survey = "acs5") %>%
-        mutate(year = yr)
+        mutate(year = yr)})
       pct_data <- pct_data %>% bind_rows(percent_below_data)
     }
     else
     {
+      suppressMessages({
       below_data <- get_acs(geography = "county",
                             variables = c(below_pov_lvl = "S1701_C02_039"),
                             tables = "S1701",
@@ -2253,7 +2272,7 @@ add_concentrated_poverty <- function(tib)
                                     year = yr,
                                     state = st,
                                     survey = "acs5") %>%
-        mutate(year = yr)
+        mutate(year = yr)})
       pct_data <- pct_data %>% bind_rows(percent_below_data)
     }
   }
@@ -2586,13 +2605,15 @@ add_ICE <- function(tib)
   {
     st <- state_years$state[i]
     yr <- state_years$year[i]
+
+    suppressMessages({
     total_tracts <- get_acs(
       geography = "tract",
       variables = c("B19001_001", vars),
       state = st,
       year = yr,
       survey = "acs5",
-      output = "wide") %>% mutate(year = yr)
+      output = "wide") %>% mutate(year = yr)})
 
     ice_data <- total_tracts %>%
       rowwise() %>%
@@ -2809,6 +2830,7 @@ add_SVI <- function(tib)
     st <- state_years$state[i]
     yr <- state_years$year[i]
 
+    suppressMessages({
     pov <- get_acs(
       geography = "tract",
       variables = "S1701_C03_001",
@@ -2843,10 +2865,11 @@ add_SVI <- function(tib)
     per_capita <- per_capita %>% bind_rows(per_cap) %>%
       county_state_helper() %>% group_by(state, year) %>%
       mutate(ninety_percentile_percap = quantile(B19301_001E, probs = 0.9, na.rm = TRUE)) %>%
-      mutate(flag = ifelse(B19301_001E < ninety_percentile_percap, 0, 1))
+      mutate(flag = ifelse(B19301_001E < ninety_percentile_percap, 0, 1))})
 
     if(yr < 2015)
     {
+      suppressMessages({
       no_dip <- get_acs(
         geography = "tract",
         variables = c("S1501_C01_008", "S1501_C01_007", "S1501_C01_006"),
@@ -2859,10 +2882,11 @@ add_SVI <- function(tib)
         mutate(percent = (S1501_C01_008E + S1501_C01_007E) / S1501_C01_006E) %>%
         group_by(state, year) %>%
         mutate(ninety_percentile_nodip_a = quantile(percent, probs = 0.9, na.rm = TRUE)) %>%
-        mutate(flag_a = ifelse(percent < ninety_percentile_nodip_a, 0, 1))
+        mutate(flag_a = ifelse(percent < ninety_percentile_nodip_a, 0, 1))})
     }
     else
     {
+      suppressMessages({
       no_dip <- get_acs(
         geography = "tract",
         variables = "S1501_C02_008",
@@ -2873,11 +2897,12 @@ add_SVI <- function(tib)
       no_hs_dip <- no_hs_dip %>% bind_rows(no_dip) %>%
         county_state_helper() %>% group_by(state, year) %>%
         mutate(ninety_percentile_nodip_b = quantile(S1501_C02_008E, probs = 0.9, na.rm = TRUE)) %>%
-        mutate(flag_b = ifelse(S1501_C02_008E < ninety_percentile_nodip_b, 0, 1))
+        mutate(flag_b = ifelse(S1501_C02_008E < ninety_percentile_nodip_b, 0, 1))})
     }
 
     if(yr > 2016)
     {
+      suppressMessages({
       older_group <- get_acs(
         geography = "tract",
         variables = "S0101_C01_030",
@@ -2888,10 +2913,11 @@ add_SVI <- function(tib)
       sixtyfive_up <- sixtyfive_up %>% bind_rows(older_group) %>%
         county_state_helper() %>% group_by(state, year) %>%
         mutate(ninety_percentile_oga = quantile(S0101_C01_030E, probs = 0.9, na.rm = TRUE)) %>%
-        mutate(flag_a = ifelse(S0101_C01_030E < ninety_percentile_oga, 0, 1))
+        mutate(flag_a = ifelse(S0101_C01_030E < ninety_percentile_oga, 0, 1))})
     }
     else
     {
+      suppressMessages({
       older_group <- get_acs(
         geography = "tract",
         variables = "S0101_C01_028",
@@ -2902,11 +2928,12 @@ add_SVI <- function(tib)
       sixtyfive_up <- sixtyfive_up %>% bind_rows(older_group) %>%
         county_state_helper() %>% group_by(state, year) %>%
         mutate(ninety_percentile_ogb = quantile(S0101_C01_028E, probs = 0.9, na.rm = TRUE)) %>%
-        mutate(flag_b = ifelse(S0101_C01_028E < ninety_percentile_ogb, 0, 1))
+        mutate(flag_b = ifelse(S0101_C01_028E < ninety_percentile_ogb, 0, 1))})
     }
 
     if(yr > 2016)
     {
+      suppressMessages({
       younger_group <- get_acs(
         geography = "tract",
         variables = "S0101_C01_022",
@@ -2917,10 +2944,11 @@ add_SVI <- function(tib)
       seventeen_down <- seventeen_down %>% bind_rows(younger_group) %>%
         county_state_helper() %>% group_by(state, year) %>%
         mutate(ninety_percentile_yga = quantile(S0101_C01_022E, probs = 0.9, na.rm = TRUE)) %>%
-        mutate(flag_a = ifelse(S0101_C01_022E < ninety_percentile_yga, 0, 1))
+        mutate(flag_a = ifelse(S0101_C01_022E < ninety_percentile_yga, 0, 1))})
     }
     else
     {
+      suppressMessages({
       younger_group <- get_acs(
         geography = "tract",
         variables = c("S0101_C01_002", "S0101_C01_020", "S0101_C01_021"),
@@ -2932,9 +2960,10 @@ add_SVI <- function(tib)
         county_state_helper() %>% mutate(total = S0101_C01_002E + S0101_C01_020E + S0101_C01_021E) %>%
         group_by(state, year) %>%
         mutate(ninety_percentile_ygb = quantile(total, probs = 0.9, na.rm = TRUE)) %>%
-        mutate(flag_b = ifelse(total < ninety_percentile_ygb, 0, 1))
+        mutate(flag_b = ifelse(total < ninety_percentile_ygb, 0, 1))})
     }
 
+    suppressMessages({
     dis <- get_acs(
       geography = "tract",
       variables = "S1810_C02_001",
@@ -2971,11 +3000,12 @@ add_SVI <- function(tib)
       county_state_helper() %>% mutate(total = B03002_001E - B03002_003E) %>%
       group_by(state, year) %>%
       mutate(ninety_percentile_min = quantile(total, probs = 0.9, na.rm = TRUE)) %>%
-      mutate(flag = ifelse(total < ninety_percentile_min, 0, 1))
+      mutate(flag = ifelse(total < ninety_percentile_min, 0, 1))})
 
     if(yr <= 2016)
     {
       warning("Dates before 2016 are rounded up to 2016 data because in years prior there is no data for spoken language proficiency.")
+      suppressMessages({
       lang <- get_acs(
         geography = "tract",
         variables = c(g15 = "C16001_005", g18 = "C16001_008", g111 = "C16001_011", g114 ="C16001_014", g117 = "C16001_017", g120 = "C16001_020", g123 = "C16001_023", g126 = "C16001_026", g129 = "C16001_029", g132 = "C16001_032", g135 = "C16001_035", g138 = "C16001_038"),
@@ -2987,10 +3017,11 @@ add_SVI <- function(tib)
         county_state_helper() %>% mutate(total_a = g15E + g18E + g111E + g114E + g117E + g120E + g123E + g126E + g129E + g132E + g135E + g138E) %>%
         group_by(state, year) %>%
         mutate(ninety_percentile_langa = quantile(total_a, probs = 0.9, na.rm = TRUE)) %>%
-        mutate(flag_a = ifelse(total_a < ninety_percentile_langa, 0, 1))
+        mutate(flag_a = ifelse(total_a < ninety_percentile_langa, 0, 1))})
     }
     else
     {
+      suppressMessages({
       lang <- get_acs(
         geography = "tract",
         variables = c(g25 = "C16001_005", g28 = "C16001_008", g211 = "C16001_011", g214 ="C16001_014", g217 = "C16001_017", g220 = "C16001_020", g223 = "C16001_023", g226 = "C16001_026", g229 = "C16001_029", g232 = "C16001_032", g235 = "C16001_035", g238 = "C16001_038"),
@@ -3002,9 +3033,10 @@ add_SVI <- function(tib)
         county_state_helper() %>% mutate(total_b = g25E + g28E + g211E + g214E + g217E + g220E + g223E + g226E + g229E + g232E + g235E + g238E) %>%
         group_by(state, year) %>%
         mutate(ninety_percentile_langb = quantile(total_b, probs = 0.9, na.rm = TRUE)) %>%
-        mutate(flag_b = ifelse(total_b < ninety_percentile_langb, 0, 1))
+        mutate(flag_b = ifelse(total_b < ninety_percentile_langb, 0, 1))})
     }
 
+    suppressMessages({
     multi <- get_acs(
       geography = "tract",
       variables = c("B25024_007", "B25024_008", "B25024_009"),
@@ -3066,7 +3098,7 @@ add_SVI <- function(tib)
     group_quarters <- group_quarters %>% bind_rows(grp_quart) %>%
       county_state_helper() %>% group_by(state, year) %>%
       mutate(ninety_percentile_gq = quantile(B26001_001E, probs = 0.9, na.rm = TRUE)) %>%
-      mutate(flag = ifelse(B26001_001E < ninety_percentile_gq, 0, 1))
+      mutate(flag = ifelse(B26001_001E < ninety_percentile_gq, 0, 1))})
   }
   below_pov_data <- below_pov_data %>%
     mutate(rank_bp = (rank(S1701_C03_001E, ties.method = "min") - 1) / (length(S1701_C03_001E) - 1)) %>% ungroup() %>%
