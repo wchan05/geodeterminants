@@ -63,9 +63,9 @@ keep_original_year <- function(tib)
 #' @export
 check_tidycensus_key <- function()
 {
-  key <- census_api_key(NULL)
+  key <- Sys.getenv("CENSUS_API_KEY")
 
-  if(is.null(key) || key == "")
+  if(is.null(key) || key == "" || key == FALSE)
   {
     stop("No Census API key found. Please set one with census_api_key().")
   }
@@ -3996,6 +3996,138 @@ add_pct_unionized <- function(tib, current_year = 2025, default_year = 2024)
 get_geodeterminants <- function(gd_tib = NULL, gd_addresses = NULL, gd_current_year = 2025, gd_minority_group_code = NULL, gd_comparison_group_code = NULL, gd_minority_group_code_dhc = NULL, gd_minority_group_code_sf1 = NULL, gd_current_fed_min_wage = 7.25)
 {
   check_tidycensus_key()
+
+  cat("You will now be prompted to make four selections.\n",
+      "Each selection corresponds to identifying the racial/ethnic group variable
+    used in different census datasets.\n", "These groups are necessary to
+    calculate segregation indices (e.g., dissimilarity and separation) and to
+    ensure consistency across ACS, DHC, and SF1 data sources.\n\n",
+      "Specifically:\n",
+      "1. Select a minority group (ACS data, dissimilarity index).\n",
+      "2. Select a comparison group (ACS data, separation index).\n",
+      "3. Select a minority group for 2020 DHC data (used when 2020 data is
+    included).\n",
+      "4. Select a minority group from 2010 SF1 data (used for comparison with
+    2020 to assess reliability).\n\n","Your choices will determine which
+    population subgroups are analyzed in the
+    subsequent calculations.\n\n")
+
+  # menu 1
+  if(is.null(gd_minority_group_code))
+  {
+    minority_groups <- c(
+      "Not Hispanic or Latino" = "B03002_002",
+      "Not Hispanic or Latino White alone" = "B03002_003",
+      "Not Hispanic or Latino Black or African American alone" = "B03002_004",
+      "Not Hispanic or Latino American Indian and Alaska Native alone" = "B03002_005",
+      "Not Hispanic or Latino Asian alone" = "B03002_006",
+      "Not Hispanic or Latino Native Hawaiian and Other Pacific Islander alone" = "B03002_007",
+      "Not Hispanic or Latino Some other race alone" = "B03002_008",
+      "Not Hispanic or Latino Two or more races" = "B03002_009",
+      "Not Hispanic or Latino Two races including Some other race" = "B03002_010",
+      "Not Hispanic or Latino Two races excluding Some other race, and three or more races" = "B03002_011",
+      "Hispanic or Latino" = "B03002_012",
+      "Hispanic or Latino White alone" = "B03002_013",
+      "Hispanic or Latino Black or African American alone" = "B03002_014",
+      "Hispanic or Latino American Indian and Alaska Native alone" = "B03002_015",
+      "Hispanic or Latino Asian alone" = "B03002_016",
+      "Hispanic or Latino Native Hawaiian and Other Pacific Islander alone" = "B03002_017",
+      "Hispanic or Latino Some other race alone" = "B03002_018",
+      "Hispanic or Latino Two or more races" = "B03002_019",
+      "Hispanic or Latino Two races including Some other race" = "B03002_020",
+      "Hispanic or Latino Two races excluding Some other race, and three or more races" = "B03002_021"
+    )
+    choice <- menu(names(minority_groups), title = "Select the group you want the dissimilarity index for:")
+    gd_minority_group_code <- minority_groups[choice]
+
+    cat("You selected:", names(gd_minority_group_code), "-", gd_minority_group_code, "\n")
+  }
+
+  # menu 2
+  if(is.null(gd_comparison_group_code))
+  {
+    comparison_groups <- c(
+      "Not Hispanic or Latino" = "B03002_002",
+      "Not Hispanic or Latino White alone" = "B03002_003",
+      "Not Hispanic or Latino Black or African American alone" = "B03002_004",
+      "Not Hispanic or Latino American Indian and Alaska Native alone" = "B03002_005",
+      "Not Hispanic or Latino Asian alone" = "B03002_006",
+      "Not Hispanic or Latino Native Hawaiian and Other Pacific Islander alone" = "B03002_007",
+      "Not Hispanic or Latino Some other race alone" = "B03002_008",
+      "Not Hispanic or Latino Two or more races" = "B03002_009",
+      "Not Hispanic or Latino Two races including Some other race" = "B03002_010",
+      "Not Hispanic or Latino Two races excluding Some other race, and three or more races" = "B03002_011",
+      "Hispanic or Latino" = "B03002_012",
+      "Hispanic or Latino White alone" = "B03002_013",
+      "Hispanic or Latino Black or African American alone" = "B03002_014",
+      "Hispanic or Latino American Indian and Alaska Native alone" = "B03002_015",
+      "Hispanic or Latino Asian alone" = "B03002_016",
+      "Hispanic or Latino Native Hawaiian and Other Pacific Islander alone" = "B03002_017",
+      "Hispanic or Latino Some other race alone" = "B03002_018",
+      "Hispanic or Latino Two or more races" = "B03002_019",
+      "Hispanic or Latino Two races including Some other race" = "B03002_020",
+      "Hispanic or Latino Two races excluding Some other race, and three or more races" = "B03002_021"
+    )
+    choice <- menu(names(comparison_groups), title = "Select the group you want the separation index for:")
+    gd_comparison_group_code <- comparison_groups[choice]
+
+    cat("You selected:", names(gd_comparison_group_code), "-", gd_comparison_group_code, "\n")
+  }
+
+  # menu 3
+  if(is.null(gd_minority_group_code_dhc))
+  {
+    print("Because at least one of the years is counted as 2020, the dhc dataset must be used.")
+    minority_groups_dhc <- c(
+      "Not Hispanic or Latino" = "P5_002N",
+      "Not Hispanic or Latino, White alone" = "P5_003N",
+      "Not Hispanic or Latino, Black or African American alone" = "P5_004N",
+      "Not Hispanic or Latino, American Indian and Alaska Native alone" = "P5_005N",
+      "Not Hispanic or Latino Asian alone" = "P5_006N",
+      "Not Hispanic or Latino Native Hawaiian and Other Pacific Islander alone" = "P5_007N",
+      "Not Hispanic or Latino Some other race alone" = "P5_008N",
+      "Not Hispanic or Latino Two or more races" = "P5_009N",
+      "Hispanic or Latino" = "P5_010N",
+      "Hispanic or Latino White alone" = "P5_011N",
+      "Hispanic or Latino Black or African American alone" = "P5_012N",
+      "Hispanic or Latino American Indian and Alaska Native alone" = "P5_013N",
+      "Hispanic or Latino Asian alone" = "P5_014N",
+      "Hispanic or Latino Native Hawaiian and Other Pacific Islander alone" = "P5_015N",
+      "Hispanic or Latino Some Other Race alone" = "P5_016N",
+      "Hispanic or Latino Two or More Races" = "P5_017N"
+    )
+    choice <- menu(names(minority_groups_dhc), title = "Select the group you want the dissimilarity index for:")
+    gd_minority_group_code_dhc <- minority_groups_dhc[choice]
+    cat("You selected:", names(gd_minority_group_code_dhc), "-", gd_minority_group_code_dhc, "\n")
+  }
+
+  # menu 4
+  if(is.null(gd_minority_group_code_sf1))
+  {
+    print("Because not all data for 2020 is uploaded, sf1 (2010) data will be used as an estimate to compare the reliability of 2020s given data.")
+    minority_groups_comp <- c(
+      "Not Hispanic or Latino" = "P005002",
+      "Not Hispanic or Latino, White alone" = "P005003",
+      "Not Hispanic or Latino, Black or African American alone" = "P005004",
+      "Not Hispanic or Latino, American Indian and Alaska Native alone" = "P005005",
+      "Not Hispanic or Latino Asian alone" = "P005006",
+      "Not Hispanic or Latino Native Hawaiian and Other Pacific Islander alone" = "P005007",
+      "Not Hispanic or Latino Some other race alone" = "P005008",
+      "Not Hispanic or Latino Two or more races" = "P005009",
+      "Hispanic or Latino" = "P005010",
+      "Hispanic or Latino White alone" = "P005011",
+      "Hispanic or Latino Black or African American alone" = "P005012",
+      "Hispanic or Latino American Indian and Alaska Native alone" = "P005013",
+      "Hispanic or Latino Asian alone" = "P005014",
+      "Hispanic or Latino Native Hawaiian and Other Pacific Islander alone" = "P005015",
+      "Hispanic or Latino Some Other Race alone" = "P005016",
+      "Hispanic or Latino Two or More Races" = "P005017"
+    )
+    choice <- menu(names(minority_groups_comp), title = "Select the group you want the dissimilarity index for:")
+    gd_minority_group_code_sf1 <- minority_groups_comp[choice]
+    cat("You selected:", names(gd_minority_group_code_sf1), "-", gd_minority_group_code_sf1, "\n")
+  }
+
   if(is.null(gd_tib) && is.null(gd_addresses))
   {
     return("Address data must be provided(Tibble or Vector)")
