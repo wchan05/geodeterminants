@@ -9,7 +9,7 @@
 #'   and any corresponding data. The tibble should at least include addresses in
 #'   proper format and year of diagnosis as `year`(until function
 #'   `keep_original_year()` is run which then `actual_year` and `year` exist)
-#'   for the most accurate data.
+#'   for the most accurate data
 #'
 #' @returns A tibble of the original data, except the *year* column(which
 #'   represents the year of diagnosis) is copied and stored as the column
@@ -46,6 +46,52 @@ keep_original_year <- function(tib)
   tib <- tib %>%
     mutate(actual_year = year)
   return(tib)
+}
+
+#' Backup geocoding method
+#'
+#' The function `geo_fallback()` is responsible for finding the latitude and
+#' longitude values of addresses that were not traceable by the census method
+#' through the function `geocode()`.
+#'
+#' @param census_geo A tibble that has been geocoded but still has NA values
+#' @param fallback The method used to find coordinates of the missing values. By default this is "arcgis" because it showed to cover the most area compared to other methods
+#'
+#' @returns A tibble with latitude and longitude values using arcgis to catch any missed values
+#'
+#' @examples
+#' some_tibble <- some_tibble %>%
+#' geocode(address, method = "census", lat = lat, long = long)
+#'
+#' geo_fallback(some_tibble)
+#'
+#' @importFrom dplyr filter select bind_rows
+#' @importFrom tidygeocoder geocode
+#' @importFrom magrittr %>%
+#'
+#' @export
+geo_fallback <- function(census_geo, fallback = "arcgis")
+{
+  failed <- census_geo %>%
+    filter(is.na(lat) | is.na(long)) %>%
+    select(-lat, -long)
+  success <- census_geo %>%
+    filter(!is.na(lat) & !is.na(long))
+
+  if(nrow(failed))
+  {
+    message("Re-geocoding ", nrow(failed), " address(es) using ", fallback, "...")
+    geo_add <- failed %>%
+      geocode(address = address, lat = "lat", long = "long", method = fallback)
+    geo_max <- success %>%
+      bind_rows(geo_add)
+  }
+  else
+  {
+    return(census_geo)
+  }
+
+  return(geo_max)
 }
 
 #' Checks for Tidy Census Key
@@ -301,10 +347,10 @@ vector_to_tib <- function(addresses, current_year)
   geocoded <- geocoded %>%
     mutate(actual_year = NA) %>%
     mutate(year = current_year - 2) %>%
-    geocode(address, method = "osm", lat = lat, lon = lon) %>%
-    mutate(valid_coords = (!is.na(lat) & !is.na(lon))) %>%
-    reverse_geocode(lat = lat, lon = lon, method = "osm", full_results = TRUE) %>%
-    select(address = address...1, actual_year, year, lat, lon, city, state, county, country)})
+    geocode(address, method = "osm", lat = lat, long = long) %>%
+    mutate(valid_coords = (!is.na(lat) & !is.na(long))) %>%
+    reverse_geocode(lat = lat, long = long, method = "osm", full_results = TRUE) %>%
+    select(address = address...1, actual_year, year, lat, long, city, state, county, country)})
 
   state_lookup <- tibble(
     state_abbr = c(state.abb, "DC", "PR", "GU", "VI", "AS", "MP"),
@@ -314,14 +360,14 @@ vector_to_tib <- function(addresses, current_year)
     left_join(state_lookup, by = "state") %>% select(-state) %>% rename(state = state_abbr)
 
   coords_sf <- geocoded %>%
-    filter(!is.na(lon) & !is.na(lat)) %>%
-    st_as_sf(coords = c("lon", "lat"), crs = 4326)
+    filter(!is.na(long) & !is.na(lat)) %>%
+    st_as_sf(coords = c("long", "lat"), crs = 4326)
 
   results_tract <- tibble()
   results_county <- tibble()
 
   pairs <- geocoded %>%
-    filter(!is.na(lon) & !is.na(lat)) %>%
+    filter(!is.na(long) & !is.na(lat)) %>%
     select(state, year) %>%
     distinct() %>%
     split(1:nrow(.))
@@ -421,9 +467,9 @@ geo_info <- function(tib)
 
   suppressMessages({
   geocoded <- tib %>% select(address, actual_year, year) %>%
-    geocode(address = address, method = "osm", long = lon, lat = lat) %>%
-    reverse_geocode(lat = lat, lon = lon, method = "osm", full_results = TRUE) %>%
-    select(address = address...1, actual_year, year, lat, lon, city, state, county, country)})
+    geocode(address = address, method = "osm", long = long, lat = lat) %>%
+    reverse_geocode(lat = lat, long = long, method = "osm", full_results = TRUE) %>%
+    select(address = address...1, actual_year, year, lat, long, city, state, county, country)})
 
   state_lookup <- tibble(
     state_abbr = c(state.abb, "DC", "PR", "GU", "VI", "AS", "MP"),
@@ -433,14 +479,14 @@ geo_info <- function(tib)
     left_join(state_lookup, by = "state") %>% select(-state) %>% rename(state = state_abbr)
 
   coords_sf <- geocoded %>%
-    filter(!is.na(lon) & !is.na(lat)) %>%
-    st_as_sf(coords = c("lon", "lat"), crs = 4326)
+    filter(!is.na(long) & !is.na(lat)) %>%
+    st_as_sf(coords = c("long", "lat"), crs = 4326)
 
   results_tract <- tibble()
   results_county <- tibble()
 
   pairs <- geocoded %>%
-    filter(!is.na(lon) & !is.na(lat)) %>%
+    filter(!is.na(long) & !is.na(lat)) %>%
     select(state, year) %>%
     distinct() %>%
     split(1:nrow(.))
@@ -481,7 +527,7 @@ geo_info <- function(tib)
   results_tract <- results_tract %>% distinct()
   results_county <- results_county %>% distinct()
 
-  look_out <- c("lat", "lon", "city", "state", "county", "country", "GEOID", "GEOID_county")
+  look_out <- c("lat", "long", "city", "state", "county", "country", "GEOID", "GEOID_county")
   tib <- tib %>%
     select(-any_of(look_out))
 
@@ -546,8 +592,8 @@ vector_geocode_to_tib <- function(addresses)
   geocoded <- tibble(address = addresses)
   suppressMessages({
   geocoded <- geocoded %>%
-    tidygeocoder::geocode(address, method = "osm", lat = lat, lon = lon) %>%
-    mutate(valid_coords = (!is.na(lat) & !is.na(lon)))})
+    tidygeocoder::geocode(address, method = "osm", lat = lat, long = long) %>%
+    mutate(valid_coords = (!is.na(lat) & !is.na(long)))})
 
   return(geocoded)
 }
@@ -588,14 +634,14 @@ vector_geocode_to_tib <- function(addresses)
 SDOH_reverse <- function(geo_tib)
 {
   fn_name <- as.character(sys.call()[[1]])
-  req_cols <- c("address", "lat", "lon")
+  req_cols <- c("address", "lat", "long")
   if (!all(req_cols %in% names(geo_tib)))
   {
-    stop(paste("Input tibble must have columns 'address', 'lat', and 'lon' for the function:", fn_name))
+    stop(paste("Input tibble must have columns 'address', 'lat', and 'long' for the function:", fn_name))
   }
   suppressMessages({
   updated_tib <- geo_tib %>%
-    reverse_geocode(lat = lat, long = lon, method = "osm", full_results = TRUE) %>%
+    reverse_geocode(lat = lat, long = long, method = "osm", full_results = TRUE) %>%
     select(address = address...1, valid_coords, city, state, county, country)})
 
   state_lookup <- tibble(
@@ -656,7 +702,7 @@ add_info_cols <- function(tib)
   new_data <- tib %>%
     tidygeocoder::geocode(address, method = "osm")
   new_data <- new_data %>%
-    tidygeocoder::reverse_geocode(lat = lat, lon = long, method = "osm", full_results = TRUE) %>%
+    tidygeocoder::reverse_geocode(lat = lat, long = long, method = "osm", full_results = TRUE) %>%
     select(address = address...1, city, county, country, year)})
     tib <- left_join(tib, new_data, by = c("address", "year"))
   return(tib)
@@ -715,10 +761,10 @@ get_GEOID <- function(tib)
 
   suppressMessages({
   geocoded <- tib %>%
-    geocode(address = address, method = "osm", long = lon, lat = lat)})
+    geocode(address = address, method = "osm", long = long, lat = lat)})
 
   failed_geocodes <- geocoded %>%
-    filter(is.na(lon) | is.na(lat))
+    filter(is.na(long) | is.na(lat))
 
   if (nrow(failed_geocodes) > 0)
   {
@@ -728,13 +774,13 @@ get_GEOID <- function(tib)
 
   # Convert successful geocodes to sf
   coords_sf <- geocoded %>%
-    filter(!is.na(lon) & !is.na(lat)) %>%
-    st_as_sf(coords = c("lon", "lat"), crs = 4326)
+    filter(!is.na(long) & !is.na(lat)) %>%
+    st_as_sf(coords = c("long", "lat"), crs = 4326)
 
   results <- tibble()
 
   pairs <- geocoded %>%
-    filter(!is.na(lon) & !is.na(lat)) %>%
+    filter(!is.na(long) & !is.na(lat)) %>%
     select(state, year) %>%
     distinct() %>%
     split(1:nrow(.))
@@ -766,7 +812,7 @@ get_GEOID <- function(tib)
   }
   tib_with_geoid <- geocoded %>%
     left_join(results, by = c("address", "year")) %>%
-    select(-lon, -lat)
+    select(-long, -lat)
 
   return(tib_with_geoid)
 }
@@ -826,10 +872,10 @@ get_county_geo <- function(tib)
   suppressMessages({
   geocoded <- tib %>%
     select(address, year, state) %>%
-    geocode(address = address, method = "osm", long = lon, lat = lat)})
+    geocode(address = address, method = "osm", long = long, lat = lat)})
 
   failed_geocodes <- geocoded %>%
-    filter(is.na(lon) | is.na(lat))
+    filter(is.na(long) | is.na(lat))
 
   if (nrow(failed_geocodes) > 0)
   {
@@ -839,13 +885,13 @@ get_county_geo <- function(tib)
 
   # Convert successful geocodes to sf
   coords_sf <- geocoded %>%
-    filter(!is.na(lon) & !is.na(lat)) %>%
-    st_as_sf(coords = c("lon", "lat"), crs = 4326)
+    filter(!is.na(long) & !is.na(lat)) %>%
+    st_as_sf(coords = c("long", "lat"), crs = 4326)
 
   results <- tibble()
 
   pairs <- geocoded %>%
-    filter(!is.na(lon) & !is.na(lat)) %>%
+    filter(!is.na(long) & !is.na(lat)) %>%
     select(state, year) %>%
     distinct() %>%
     split(1:nrow(.))
@@ -877,7 +923,7 @@ get_county_geo <- function(tib)
   }
   tib_with_geoid <- geocoded %>%
     left_join(results, by = c("address", "year")) %>%
-    select(-lon, -lat)
+    select(-long, -lat)
   tib <- left_join(tib, tib_with_geoid, by = c("address", "state", "year"))
 
   return(tib)
