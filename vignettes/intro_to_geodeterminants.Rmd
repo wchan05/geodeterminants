@@ -1,0 +1,253 @@
+---
+title: "Introduction to geodeterminants"
+author: "Wesley Chan"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to geodeterminants}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This is an introduction to the `geodeterminants` package. This package is designed for researchers as well as the broader community. The goal of this package it to take in a vector or tibble of addresses and obtain social determinant of health(SDOH)/geodeterminant data for each valid address, further analysis is to be done by the user. SDOH/Geodetermintants or formally know as geographical determinants are factors of natural and human-made environment that influence human activities, development, and outcomes.
+The determinants focused on in this package are from PhenX:
+1. Air Quality Index - #290101
+2. Concentrated Poverty - #290201
+3. Education Attainment - #290301
+4. Environmental Justice - #290401
+5. Food Swamp - #290501
+6. Income Concentration - #290801
+7. Minimum Wage - #290901
+8. Percent Unionized for Non- Agricultural Labor Force - #290601
+9. Race/Ethnic Residential Segregation - American Community Survey - #211403
+10. Race/Ethnic Residential Segregation - Separation (S) Index, Unbiased - #211404
+11. Race/Ethnic Residential Segregation - U.S. Census - #211402
+12. Social Vulnerability - #290701
+
+In this package, there are functions for each of these factors along with other functions that provide support in obtaining this data accurately and fill in gaps to prevent bias data. 
+
+Install the `geodeterminants` package by:
+1. devtool::install_github("wchan05/geodeterminants") 
+2. library(geodeterminants)
+
+Make sure the necessary supplementary packages are installed as well:
+1. `tidyverse`
+2. `tidygeocoder`
+3. `tibble`
+4. `tidycensus` **(MUST HAVE AN API KEY)**
+5. `tigris`
+6. `sf`
+7. `readxl`
+
+Now to apply and run this package and its functions.
+There are two approaches which are to manually obtain data and to run `get_geodeterminants` which takes care of everything for you. Both approaches will be broken down in this vignette.
+
+```{r setup, include=FALSE}
+library(geodeterminants)
+library(tidyverse)
+library(tidygeocoder)
+library(tibble)
+library(tidycensus)
+library(tigris)
+library(sf)
+library(readxl)
+
+knitr::opts_chunk$set(
+  echo = TRUE,       # Show R code
+  message = FALSE,   # Hide package loading messages
+  warning = FALSE    # Hide warnings
+  )
+```
+
+The simplest and most efficient way to use this package is with the `get_geodeterminant()` function, which automatically handles all underlying data cleaning, organization, and geographic grouping steps. Ensure that your input data follows the required structure and formatting rules for the function to run successfully. There are numerous parameters with descriptions that are available on that functions page or in the comments below. 
+```{r, message=FALSE, warning=FALSE}
+# --- Option 1: Start with a tibble of addresses ---
+test_tib <- tibble(
+  address = c(
+    "15 Main Street Flemington, NJ 08822",
+    "120 E Main St, Ramsey, MN 55303",
+    "1315 S Glenstone Ave, Springfield, MO 65804",
+    "401 W 14th St, Austin, TX 78701",
+    "340 S Lemon Ave, Walnut, CA 91789",
+    "25 Main St, Northampton, MA 01060",
+    "Non existent Ave",
+    "100 Jersey Ave, New Brunswick, NJ 08901",
+    "17350 Woodward Ave, Detroit, MI 48203"),
+  state = c("NJ", "MN", "MO", "TX", "CA", "MA", "PA", "NJ", "MI"),
+  year = c(2022, 2023, NA, 2023, NA, 2023, 2022, 2022, NA))
+
+# Run `get_geodeterminants()` 
+# - leaving parameters blank will give default values or prompt you to assist in obtaining the most accurate data 
+# gd_tib - type `tibble` that must at least contain columns `address`, `state`(abbreviation for best use), and `year`(of diagnosis/source).
+# gd_addresses - type `vector` contains addresses of patient/study subjects
+# gd_current_year the current year this function is being used
+# gd_minority_group_code - The `B03002` table code of the minority group of interest for social index calculations
+# gd_comparison_group_code - The `B03002` table code of the comparison group of interest. The group that the minority group is being compared to for separation index (generally white non-Hispanic from other studies)
+# gd_minority_group_code_dhc - The `P5` table code of the group of interest.
+# gd_minority_group_code_sf1 The `P005` table code of the group of interest. 
+# gd_current_fed_min_wage The current years minimum wage (e.g. current year: 2025, $7.25)
+
+tib_result <- get_geodeterminants(test_tib)
+
+head(tib_result)
+
+# --- Option 2: Start with a simple vector of addresses ---
+test_vec <- c(
+  "1600 Pennsylvania Ave NW, Washington, DC",
+  "350 Fifth Avenue, New York, NY 10118",
+  "1 Infinite Loop, Cupertino, CA 95014",
+  "221B Baker Street, London",
+  "2 Massachusetts Ave NE, Washington, DC 20002",
+  "1600 Amphitheatre Parkway, Mountain View, CA",
+  "4059 Mt Lee Dr, Hollywood, CA 90068",
+  "Statue of Liberty, New York, NY")
+
+# Run `get_geodeterminants()` 
+# - leaving parameters blank will give default values or prompt you to assist in obtaining the most accurate data 
+# gd_tib - type `tibble` that must at least contain columns `address`, `state`(abbreviation for best use), and `year`(of diagnosis/source).
+# gd_addresses - type `vector` contains addresses of patient/study subjects
+# gd_current_year the current year this function is being used
+# gd_minority_group_code - The `B03002` table code of the minority group of interest for social index calculations
+# gd_comparison_group_code - The `B03002` table code of the comparison group of interest. The group that is usually a minority group or group of interest for a study.
+# gd_minority_group_code_dhc - The `P5` table code of the group of interest.
+# gd_minority_group_code_sf1 The `P005` table code of the group of interest. 
+# gd_current_fed_min_wage The current years minimum wage (e.g. current year: 2025, $7.25)
+
+vec_result <- get_geodeterminants(test_vec)
+
+head(vec_result)
+
+```
+
+Basic work flow of setting up data to fit the requirements of the functions. There are two options you will either start with a tibble of addresses with other columns of data or a plain vector with simply address data.
+```{r, message=FALSE, warning=FALSE}
+# --- Option 1: Start with a tibble of addresses ---
+test_tib <- tibble(
+  address = c(
+    "15 Main Street Flemington, NJ 08822",
+    "120 E Main St, Ramsey, MN 55303",
+    "1315 S Glenstone Ave, Springfield, MO 65804",
+    "401 W 14th St, Austin, TX 78701",
+    "340 S Lemon Ave, Walnut, CA 91789",
+    "25 Main St, Northampton, MA 01060",
+    "Non existent Ave",
+    "100 Jersey Ave, New Brunswick, NJ 08901",
+    "17350 Woodward Ave, Detroit, MI 48203"),
+  state = c("NJ", "MN", "MO", "TX", "CA", "MA", "PA", "NJ", "MI"),
+  year = c(2022, 2023, NA, 2023, NA, 2023, 2022, 2022, NA))
+
+# Functions respectively: 
+# 1. Makes a copy of the year column so that adjusted dates don't affect the actual date data
+# 2. Assure each address has an assigned year that is within boundaries and is not NA (default = current year - 2, based on calculation this provides most accurate data if there is no date specified)
+# 3. Gets basic geographic information including levels of geography and latitude and longitude 
+gd_tib <- keep_original_year(tib = test_tib)
+gd_tib <- modify_year(tib = gd_tib, current_year = 2025)
+gd_tib <- geo_info(gd_tib)
+
+head(gd_tib)
+
+
+# --- Option 2: Start with a simple vector of addresses ---
+test_vec <- c(
+  "1600 Pennsylvania Ave NW, Washington, DC",
+  "350 Fifth Avenue, New York, NY 10118",
+  "1 Infinite Loop, Cupertino, CA 95014",
+  "221B Baker Street, London",
+  "2 Massachusetts Ave NE, Washington, DC 20002",
+  "1600 Amphitheatre Parkway, Mountain View, CA",
+  "4059 Mt Lee Dr, Hollywood, CA 90068",
+  "Statue of Liberty, New York, NY")
+
+# 1. Turns the vector into a tibble and obtains all information for each address including: geographic level, latitude and longitude, and year data which by default is set to current year - 2(same reason as for the tibble default year)
+gd_vec <- vector_to_tib(addresses = test_vec, current_year = 2025)
+
+head(gd_vec)
+```
+
+This next section will go over the functions for each individual SDOH. 
+**All functions require the clean tibbles from above whether you started with a vector or a tibble**
+
+The add_AQI() function estimates the Air Quality Index (AQI) for each observation based on its location and the selected pollutants available through EPA’s Air Quality System datasets for a given year. 
+```{r, message=FALSE, warning=FALSE}
+gd_AQI <- add_AQI(tib = gd_tib)
+head(gd_AQI)
+```
+The function uses carbon monoxide (CO), nitrogen dioxide (NO2), ozone (O3), particulate matter with a diameter of less than 2.5 micrometers (PM2.5), and sulfur dioxide (SO2), and will break the AQI value into one of the following categorical data values: Good, Moderate, Unhealthy for Sensitive Groups, Unhealthy, Very Unhealthy, Hazardous.
+
+The add_EDUC() function appends data on educational attainment (e.g., proportion of adults with a high school diploma or higher) to each geographic unit.
+```{r, message=FALSE, warning=FALSE}
+gd_edu <- add_education_attainment(tib = gd_tib)
+head(gd_edu)
+```
+This measure can be used to assess educational disparities across census tracts or other geographic boundaries (tracts used here).
+
+All segregation measures can be added sequentially to the same dataset:
+Dissimilarity: This function appends a new column representing values between 0 (complete integration) and 1 (complete segregation). Higher values indicate that a greater proportion of one group would need to relocate for an even distribution.
+Separation: The add_separation_index() function computes the Separation Index, which captures the extent to which different racial or ethnic groups occupy distinct geographic areas.Unlike the Dissimilarity Index, it reflects overall exposure rather than evenness of distribution.
+Decennial Dissimilarity: The add_decennial_dissimilarity_index() function performs the same calculation as the standard Dissimilarity Index but uses Decennial Census data instead of ACS estimates.This allows for consistent, long-term comparisons across census years (e.g., 2000, 2010, 2020).
+```{r, message=FALSE, warning=FALSE}
+gd_index <- gd_tib %>%
+  add_dissimilarity_index(minority_group_code = "B03002_004") %>%
+  add_separation_index(comparison_group_code = "B03002_004") %>%
+  add_decennial_dissimilarity(minority_group_code_dhc = "P5_004N", minority_group_code_sf1 = "P005004")
+
+head(gd_index)
+```
+
+The add_ICE() function adds a measure of economic segregation to your dataset.
+It quantifies the degree to which income extremes—high- and low-income households—are spatially concentrated within each area.
+```{r, message=FALSE, warning=FALSE}
+gd_ICE <- add_ICE(tib = gd_tib)
+
+head(gd_ICE)
+```
+The resulting tibble will include an additional column, typically named ICE, representing the Income Concentration of Extremes score for each geographic observation.
+
+This function computes a measure of concentrated poverty for each geographic unit
+in the input tibble. Concentrated poverty reflects the proportion of residents living below a defined poverty threshold within a community.
+```{r, message=FALSE, warning=FALSE}
+gd_concentr_pov <- add_concentrated_poverty(tib = gd_tib)
+
+head(gd_concentr_pov)
+```
+
+Computes the CDC Social Vulnerability Index (SVI) for each geographic unit. SVI is used to identify communities that may need support during disasters or public health crises.
+```{r, message=FALSE, warning=FALSE}
+gd_SVI <- add_SVI(tib = gd_tib)
+head(gd_SVI)
+```
+  
+Calculates the RFEI(Retail Food Environment Index), which measures the accessibility of healthy versus unhealthy food options in a community. Higher values indicate a more limited healthy food environment and obesity rise in certain areas.
+```{r, message=FALSE, warning=FALSE}
+gd_RFEI <- add_RFEI(tib = gd_tib)
+head(gd_RFEI)
+```
+
+Computes an EJ index to quantify environmental burdens and social vulnerability in communities. The index is used to identify areas that may face disproportionate environmental risks.
+```{r, message=FALSE, warning=FALSE}
+gd_EJ <- add_EJ_index(tib = gd_tib)
+head(gd_EJ)
+``` 
+
+Adds a column for the local minimum wage in each geographic unit. The function can compare local wages to the federal minimum wage or historical wage data.
+```{r, message=FALSE, warning=FALSE}
+gd_minwag <- add_min_wage(tib = gd_tib, current_fed_min_wage = gd_current_fed_min_wage)
+head(gd_minwag)
+```  
+
+Computes the proportion of the workforce that is unionized in each geographic unit. Useful for assessing labor organization and worker representation in different areas.
+```{r, message=FALSE, warning=FALSE}
+gd_pu <- add_pct_unionized(tib = gd_tib, current_year = gd_current_year)
+head(pu)
+``` 
+
+
+
+
