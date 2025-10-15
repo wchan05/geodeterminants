@@ -11,7 +11,7 @@ add_dissimilarity_index(tib, minority_group_code = NULL)
 and any corresponding data. The tibble should at least include addresses in
 proper format and year of diagnosis as \code{year}(until function
 \code{keep_original_year()} is run which then \code{actual_year} and \code{year} exist)
-for the most accurate data.}
+for the most accurate data}
 
 \item{minority_group_code}{The B03002 table code of the minority group of
 interest. If the code isn't known leave null and select from the menu}

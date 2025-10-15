@@ -11,7 +11,7 @@ modify_year(tib, current_year)
 and any corresponding data. The tibble should at least include addresses in
 proper format and year of diagnosis as \code{year}(until function
 \code{keep_original_year()} is run which then \code{actual_year} and \code{year} exist)
-for the most accurate data.}
+for the most accurate data}
 
 \item{current_year}{A 4 digit value that can represent the current year data
 is being used with this package or the year data was finalized}

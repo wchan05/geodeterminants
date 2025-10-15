@@ -11,7 +11,7 @@ add_min_wage(tib, current_fed_min_wage = 7.25)
 and any corresponding data. The tibble should at least include addresses in
 proper format and year of diagnosis as \code{year}(until function
 \code{keep_original_year()} is run which then \code{actual_year} and \code{year} exist)
-for the most accurate data.}
+for the most accurate data}
 
 \item{current_fed_min_wage}{The current years minimum wage (e.g. current year: 2025, $7.25)}
 }

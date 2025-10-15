@@ -15,7 +15,7 @@ add_decennial_dissimilarity(
 and any corresponding data. The tibble should at least include addresses in
 proper format and year of diagnosis as \code{year}(until function
 \code{keep_original_year()} is run which then \code{actual_year} and \code{year} exist)
-for the most accurate data.}
+for the most accurate data}
 
 \item{minority_group_code_dhc}{The P5 table code of the comparison group of
 interest. If the code isn't known leave null and select from the menu. Used

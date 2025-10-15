@@ -11,7 +11,7 @@ add_EJ_index(tib)
 and any corresponding data. The tibble should at least include addresses in
 proper format and year of diagnosis as \code{year}(until function
 \code{keep_original_year()} is run which then \code{actual_year} and \code{year} exist)
-for the most accurate data.}
+for the most accurate data}
 }
 \value{
 A tibble with columns \code{diesal_pm}, \code{particulate_matter}, \code{ozone},
