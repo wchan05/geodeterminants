@@ -72,16 +72,10 @@ The simplest and most efficient way to use this package is with the `get_geodete
 test_tib <- tibble(
   address = c(
     "15 Main Street Flemington, NJ 08822",
-    "120 E Main St, Ramsey, MN 55303",
-    "1315 S Glenstone Ave, Springfield, MO 65804",
     "401 W 14th St, Austin, TX 78701",
-    "340 S Lemon Ave, Walnut, CA 91789",
-    "25 Main St, Northampton, MA 01060",
-    "Non existent Ave",
-    "100 Jersey Ave, New Brunswick, NJ 08901",
-    "17350 Woodward Ave, Detroit, MI 48203"),
-  state = c("NJ", "MN", "MO", "TX", "CA", "MA", "PA", "NJ", "MI"),
-  year = c(2022, 2023, NA, 2023, NA, 2023, 2022, 2022, NA))
+    "340 S Lemon Ave, Walnut, CA 91789"),
+  state = c("NJ","TX", "CA"),
+  year = c(2023, 2023, 2023))
 
 # Run `get_geodeterminants()` 
 # - leaving parameters blank will give default values or prompt you to assist in obtaining the most accurate data 
@@ -100,14 +94,9 @@ head(tib_result)
 
 # --- Option 2: Start with a simple vector of addresses ---
 test_vec <- c(
-  "1600 Pennsylvania Ave NW, Washington, DC",
-  "350 Fifth Avenue, New York, NY 10118",
-  "1 Infinite Loop, Cupertino, CA 95014",
-  "221B Baker Street, London",
-  "2 Massachusetts Ave NE, Washington, DC 20002",
-  "1600 Amphitheatre Parkway, Mountain View, CA",
-  "4059 Mt Lee Dr, Hollywood, CA 90068",
-  "Statue of Liberty, New York, NY")
+    "15 Main Street Flemington, NJ 08822",
+    "401 W 14th St, Austin, TX 78701",
+    "340 S Lemon Ave, Walnut, CA 91789")
 
 # Run `get_geodeterminants()` 
 # - leaving parameters blank will give default values or prompt you to assist in obtaining the most accurate data 
@@ -132,16 +121,10 @@ Basic work flow of setting up data to fit the requirements of the functions. The
 test_tib <- tibble(
   address = c(
     "15 Main Street Flemington, NJ 08822",
-    "120 E Main St, Ramsey, MN 55303",
-    "1315 S Glenstone Ave, Springfield, MO 65804",
     "401 W 14th St, Austin, TX 78701",
-    "340 S Lemon Ave, Walnut, CA 91789",
-    "25 Main St, Northampton, MA 01060",
-    "Non existent Ave",
-    "100 Jersey Ave, New Brunswick, NJ 08901",
-    "17350 Woodward Ave, Detroit, MI 48203"),
-  state = c("NJ", "MN", "MO", "TX", "CA", "MA", "PA", "NJ", "MI"),
-  year = c(2022, 2023, NA, 2023, NA, 2023, 2022, 2022, NA))
+    "340 S Lemon Ave, Walnut, CA 91789"),
+  state = c("NJ","TX", "CA"),
+  year = c(2023, 2023, 2023))
 
 # Functions respectively: 
 # 1. Makes a copy of the year column so that adjusted dates don't affect the actual date data
@@ -156,14 +139,9 @@ head(gd_tib)
 
 # --- Option 2: Start with a simple vector of addresses ---
 test_vec <- c(
-  "1600 Pennsylvania Ave NW, Washington, DC",
-  "350 Fifth Avenue, New York, NY 10118",
-  "1 Infinite Loop, Cupertino, CA 95014",
-  "221B Baker Street, London",
-  "2 Massachusetts Ave NE, Washington, DC 20002",
-  "1600 Amphitheatre Parkway, Mountain View, CA",
-  "4059 Mt Lee Dr, Hollywood, CA 90068",
-  "Statue of Liberty, New York, NY")
+    "15 Main Street Flemington, NJ 08822",
+    "401 W 14th St, Austin, TX 78701",
+    "340 S Lemon Ave, Walnut, CA 91789")
 
 # 1. Turns the vector into a tibble and obtains all information for each address including: geographic level, latitude and longitude, and year data which by default is set to current year - 2(same reason as for the tibble default year)
 gd_vec <- vector_to_tib(addresses = test_vec, current_year = 2025)
