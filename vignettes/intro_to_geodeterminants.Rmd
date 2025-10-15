@@ -88,7 +88,7 @@ test_tib <- tibble(
 # gd_minority_group_code_sf1 The `P005` table code of the group of interest. 
 # gd_current_fed_min_wage The current years minimum wage (e.g. current year: 2025, $7.25)
 
-tib_result <- get_geodeterminants(test_tib)
+tib_result <- get_geodeterminants(gd_tib = test_tib, gd_addresses = NULL, gd_current_year = 2025, gd_minority_group_code = "B03002_004", gd_comparison_group_code = "B03002_004", gd_minority_group_code_dhc = "P5_004N", gd_minority_group_code_sf1 = "P005004", gd_current_fed_min_wage = 7.25)
 
 head(tib_result)
 
@@ -109,7 +109,7 @@ test_vec <- c(
 # gd_minority_group_code_sf1 The `P005` table code of the group of interest. 
 # gd_current_fed_min_wage The current years minimum wage (e.g. current year: 2025, $7.25)
 
-vec_result <- get_geodeterminants(test_vec)
+vec_result <- get_geodeterminants(gd_tib = NULL, gd_addresses = test_vec, gd_current_year = 2025, gd_minority_group_code = "B03002_004", gd_comparison_group_code = "B03002_004", gd_minority_group_code_dhc = "P5_004N", gd_minority_group_code_sf1 = "P005004", gd_current_fed_min_wage = 7.25)
 
 head(vec_result)
 
@@ -216,14 +216,14 @@ head(gd_EJ)
 
 Adds a column for the local minimum wage in each geographic unit. The function can compare local wages to the federal minimum wage or historical wage data.
 ```{r, message=FALSE, warning=FALSE}
-gd_minwag <- add_min_wage(tib = gd_tib, current_fed_min_wage = gd_current_fed_min_wage)
+gd_minwag <- add_min_wage(tib = gd_tib, current_fed_min_wage = 7.25)
 head(gd_minwag)
 ```  
 
 Computes the proportion of the workforce that is unionized in each geographic unit. Useful for assessing labor organization and worker representation in different areas.
 ```{r, message=FALSE, warning=FALSE}
-gd_pu <- add_pct_unionized(tib = gd_tib, current_year = gd_current_year)
-head(pu)
+gd_pu <- add_pct_unionized(tib = gd_tib, current_year = 2025)
+head(gd_pu)
 ``` 
 
 
