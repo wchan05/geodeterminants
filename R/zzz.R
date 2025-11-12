@@ -11,7 +11,13 @@ install.packages(c(\"tidyverse\", \"tidygeocoder\", \"tibble\", \"tidycensus\", 
 - tibble
 - tidycensus (Individual API key required)
 - tigris
-- sf
+- sf (may require the terminal command
+          macos:
+          brew install gdal proj geos
+          linux:
+          sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+          sudo apt-get update
+          sudo apt-get install libudunits2-dev libgdal-dev libgeos-dev libproj-dev libsqlite0-dev)
 - readxl
 
 library(remotes)
