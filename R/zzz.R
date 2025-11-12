@@ -4,7 +4,8 @@
 Thank you for loading geodeterminants!
 Use `?geodeterminants` to see available functions and information.
 
-These packages must be installed for proper functionality (use `install.packages(\"package_name\")`):
+These packages must be installed for proper functionality:
+install.packages(c(\"tidyverse\", \"tidygeocoder\", \"tibble\", \"tidycensus\", \"tigris\", \"sf\", \"readxl\"))
 - tidyverse
 - tidygeocoder
 - tibble
@@ -12,6 +13,9 @@ These packages must be installed for proper functionality (use `install.packages
 - tigris
 - sf
 - readxl
+
+library(remotes)
+install_github(\"wchan05/geodeterminants\", build_vignettes = (TRUE or FALSE))
 
 Load with packages with: library(package_name)
 
