@@ -27,5 +27,6 @@ Load with packages with: library(package_name)
 
 ***You MUST download csv and excel files from:***
 https://wchan05.github.io/data_access/
+Put the folder named geodeterminants_datasets into the same folder/working directory where your .R file is.
 ")
 }
