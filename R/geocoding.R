@@ -1213,10 +1213,7 @@ add_dissimilarity_index <- function(tib, minority_group_code = NULL)
   # most compatible with other data/studies
   reference_group <- "B03002_003"
 
-  tib_valid <- tib %>% filter(!is.na(GEOID) & !is.na(GEOID_county) & !is.na(county))
-
-  counties <- tib_valid %>%
-    select(county)
+  tib_valid <- tib %>% filter(!is.na(GEOID) & !is.na(GEOID_county))
 
   state_years <- tib_valid %>%
     select(state, year) %>%
@@ -1314,10 +1311,13 @@ add_dissimilarity_index <- function(tib, minority_group_code = NULL)
     select(-state, -NAME)
 
   sums <- left_join(reference_num, subject_num, by = c("GEOID", "county", "state_abbr", "year")) %>%
-    rename(state = state_abbr) %>% distinct()
+    rename(state = state_abbr) %>% distinct() %>%
+    mutate(county = county %>%
+             str_replace("Municipio", "") %>%
+             str_squish())
 
   tib_valid <- tib_valid %>%
-    left_join(sums, by = c("GEOID", "county", "state", "year"))
+    left_join(sums, by = c("GEOID", "state", "year"))
 
   tib_valid <- tib_valid %>%
     filter(subject_group > 0, reference_group > 0)
@@ -1480,7 +1480,7 @@ add_separation_index <- function(tib, comparison_group_code = NULL)
   # most compatible with other data/studies
   reference_group <- "B03002_003"
 
-  tib_valid <- tib %>% filter(!is.na(GEOID) & !is.na(GEOID_county) & !is.na(county))
+  tib_valid <- tib %>% filter(!is.na(GEOID) & !is.na(GEOID_county))
   tib_geos <- tib_valid %>%
     select(GEOID, year)
 
@@ -1581,7 +1581,8 @@ add_separation_index <- function(tib, comparison_group_code = NULL)
                                 select(GEOID_county = GEOID, ref_county = estimate, county, state, year),
                               county_comp_tib %>%
                                 select(GEOID_county = GEOID, comp_county = estimate, county, state, year),
-                              by = c("GEOID_county", "county", "state", "year"))
+                              by = c("GEOID_county", "county", "state", "year")) %>%
+    mutate(county = county %>% str_replace("Municipio", "") %>% str_squish())
 
   state_lookup <- tibble(
     state_abbr = c(state.abb, "DC", "PR"),
@@ -1591,7 +1592,7 @@ add_separation_index <- function(tib, comparison_group_code = NULL)
 
   modify_tib <- modify_tib %>%
     left_join(compact_county %>%
-                select(-state, state = state_abbr), by = c("GEOID_county", "county", "state", "year")) %>% distinct()
+                select(-state, state = state_abbr), by = c("GEOID_county", "state", "year")) %>% distinct()
   modify_tib <- modify_tib %>%
     left_join(compact, by = c("GEOID", "year")) %>%
     mutate(P = (ref_county) / (ref_county + comp_county)) %>%
@@ -1714,17 +1715,16 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
   checker_with_county(tib)
 
   tib_valid <- tib %>%
-    select(address, state, county, GEOID, GEOID_county, year) %>%
-    filter(!is.na(GEOID) & !is.na(GEOID_county) & !is.na(county)) %>%
+    select(address, state, county, GEOID, GEOID_county, actual_year) %>%
+    filter(!is.na(GEOID) & !is.na(GEOID_county)) %>%
     mutate(decennial_year = case_when(
-      year < 2010 ~ 2010,
-      (year %% 10) < 5 ~ floor(year / 10) * 10,
-      (year %% 10) >= 5 ~ ceiling(year / 10) * 10,
-      is.na(year) ~ 2020))
+      actual_year < 2010 ~ 2010,
+      (actual_year %% 10) < 5 ~ floor(actual_year / 10) * 10,
+      (actual_year %% 10) >= 5 ~ ceiling(actual_year / 10) * 10,
+      is.na(actual_year) ~ 2020))
 
   dhc_results <- tibble()
   sf1_results <- tibble()
-  compare_2020 <- tibble()
 
   if(any(tib_valid$decennial_year >= 2015))
   {
@@ -1866,9 +1866,13 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
       group_by(GEOID_county, state, county, decennial_year) %>%
       mutate(summation_dhc = sum(difference_dhc)) %>% ungroup() %>%
       mutate(decennial_dissimilarity_index_dhc = summation_dhc * 0.5) %>%
-      select(GEOID_county, state, county, decennial_year, decennial_dissimilarity_index_dhc) %>% distinct()
-    tib_valid <- tib_valid %>%
-      left_join(combine_dhc, by = c("GEOID_county", "state", "county", "decennial_year")) %>%
+      select(GEOID_county, state, county, decennial_year, decennial_dissimilarity_index_dhc) %>% distinct() %>%
+      mutate(county = county %>%
+               str_replace("Municipio", "") %>%
+               str_squish())
+
+    tib_valid_one <- tib_valid %>% select(-county) %>%
+      left_join(combine_dhc, by = c("GEOID_county", "state", "decennial_year")) %>%
       mutate(`compare_2020` = 2010)
 
     if(is.null(minority_group_code_sf1))
@@ -1903,7 +1907,7 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
 
     reference_group_comp <- "P005003"
 
-    state_years_comp <- tib_valid %>%
+    state_years_comp <- tib_valid_one %>%
       filter(decennial_year == 2020) %>%
       select(state, compare_2020) %>%
       distinct()
@@ -2007,10 +2011,13 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
       group_by(GEOID_county, state, county, compare_2020) %>%
       mutate(summation_comp = sum(difference_comp)) %>% ungroup() %>%
       mutate(decennial_dissimilarity_index_comparison = summation_comp * 0.5) %>%
-      select(GEOID_county, state, county, compare_2020, decennial_dissimilarity_index_comparison) %>% distinct()
+      select(GEOID_county, state, county, compare_2020, decennial_dissimilarity_index_comparison) %>% distinct() %>%
+      mutate(county = county %>%
+               str_replace("Municipio", "") %>%
+               str_squish())
 
-    tib_valid <- tib_valid %>%
-      left_join(combine_comp, by = c("GEOID_county", "state", "county", "compare_2020"))
+    tib_valid_one <- tib_valid_one %>% select(-county) %>%
+      left_join(combine_comp, by = c("GEOID_county", "state", "compare_2020"))
   }
 
   if(any(tib_valid$decennial_year < 2015))
@@ -2124,7 +2131,10 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
         state = case_when(
           str_detect(NAME, ";") ~ str_trim(str_split_fixed(NAME, ";", 3)[, 3]),
           str_detect(NAME, ",") ~ str_trim(str_split_fixed(NAME, ",", 3)[, 3]))) %>%
-      left_join(state_lookup, by = "state") %>% select(-state) %>% rename(state = state_abbr)
+      left_join(state_lookup, by = "state") %>% select(-state) %>% rename(state = state_abbr) %>%
+      mutate(county = county %>%
+               str_replace("Municipio", "") %>%
+               str_squish())
 
     denoms_sf1 <- left_join(sf1_minority_county, sf1_reference_county, by = c("GEOID", "NAME", "decennial_year")) %>%
       mutate(county = case_when(
@@ -2134,7 +2144,10 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
           str_detect(NAME, ";") ~ str_trim(str_split_fixed(NAME, ";", 2)[, 2]),
           str_detect(NAME, ",") ~ str_trim(str_split_fixed(NAME, ",", 2)[, 2]))) %>%
       left_join(state_lookup, by = "state") %>% select(-state) %>% rename(state = state_abbr) %>%
-      rename(GEOID_county = GEOID)
+      rename(GEOID_county = GEOID) %>%
+      mutate(county = county %>%
+               str_replace("Municipio", "") %>%
+               str_squish())
 
     combine_sf1 <- left_join(denoms_sf1 %>%
                                select(GEOID_county, state, county, decennial_year, mc_value_sf1, rc_value_sf1),
@@ -2154,9 +2167,9 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
       mutate(summation_sf1 = sum(difference_sf1)) %>% ungroup() %>%
       mutate(decennial_dissimilarity_index_sf1 = summation_sf1 * 0.5) %>%
       select(GEOID_county, state, county, decennial_year, decennial_dissimilarity_index_sf1) %>% distinct()
-    tib_valid <- tib_valid %>%
-      left_join(combine_sf1, by = c("GEOID_county", "state", "county", "decennial_year"))
   }
+    tib_valid <- tib_valid %>% select(-county) %>% left_join(tib_valid_one, by = c("address", "GEOID","GEOID_county", "state", "decennial_year", "actual_year")) %>%
+      left_join(combine_sf1, by = c("GEOID_county", "state", "county", "decennial_year"))
   if("decennial_dissimilarity_index_dhc" %in% names(tib_valid) & "decennial_dissimilarity_index_sf1" %in% names(tib_valid))
   {
     tib_valid <- tib_valid %>%
@@ -2175,8 +2188,8 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
       mutate(decennial_dissimilarity_index = decennial_dissimilarity_index_sf1) %>%
       select(-decennial_dissimilarity_index_sf1) %>% distinct()
   }
-  tib <- tib %>%
-    left_join(tib_valid, by = c("address", "state", "county", "GEOID", "GEOID_county", "year"))
+  tib <- tib %>% select(-county) %>%
+    left_join(tib_valid %>% select(-state, -GEOID, -GEOID_county, actual_year), by = c("address", "actual_year"))
 
   return(tib)
 }
@@ -2464,7 +2477,13 @@ add_AQI <- function(tib)
       actual_year > 2024 ~ 2024,
       actual_year < 1980 ~ 1980,
       is.na(actual_year) ~ 2024,
-      TRUE ~ actual_year))
+      TRUE ~ actual_year),
+      county = case_when(
+        str_detect(county, regex("\\bborough\\b", ignore_case = TRUE)) ~
+          str_replace(county, regex("\\bborough\\b", ignore_case = TRUE), "County"),
+        !str_detect(county, regex("\\bcounty\\b", ignore_case = TRUE)) ~
+          paste(county, "County"),
+        TRUE ~ county))
 
   AQI_twenty_four <- read.csv("geodeterminants_datasets/clean_AQI/AQI_twenty_four.csv")
   AQI_twenty_three <- read.csv("geodeterminants_datasets/clean_AQI/AQI_twenty_three.csv")
@@ -2558,6 +2577,9 @@ add_AQI <- function(tib)
     bind_rows(AQI_eighty_two) %>%
     bind_rows(AQI_eighty_one) %>%
     bind_rows(AQI_eighty)
+
+  binded_data <- binded_data %>%
+    mutate(county = str_squish(county))
 
   results <- tib %>%
     left_join(binded_data, by = c("county", "state", "AQI_year" = "actual_year"))
@@ -3014,7 +3036,6 @@ add_SVI <- function(tib)
         mutate(ninety_percentile_ygb = quantile(total, probs = 0.9, na.rm = TRUE)) %>%
         mutate(flag_b = ifelse(total < ninety_percentile_ygb, 0, 1))})
     }
-
     suppressMessages({
     dis <- get_acs(
       geography = "tract",
@@ -3286,8 +3307,8 @@ add_SVI <- function(tib)
     select(GEOID, county, state, year, SVI_flag_meth)
 
   tib <- tib %>%
-    left_join(percentile, by = c("GEOID", "county", "state", "year")) %>%
-    left_join(flag, by = c("GEOID", "county", "state", "year"))
+    left_join(percentile %>% select(-county), by = c("GEOID", "state", "year")) %>%
+    left_join(flag %>% select(-county), by = c("GEOID", "state", "year"))
 
   return(tib)
 }
