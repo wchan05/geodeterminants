@@ -941,7 +941,7 @@ get_county_geo <- function(tib)
 #' U.S. Census Bureau’s American Community Survey (ACS) to assess the
 #' educational environment of a respondent's geographic area. The measure is
 #' based on the percentage of individuals with a bachelor’s degree or higher in
-#' a given census tract. The data are sourced from ACS 5-year estimates and
+#' a given census tract(community based). The data are sourced from ACS 5-year estimates and
 #' updated annually. The function requires a geocoded address to determine the
 #' respondent's location and linka it to the appropriate ACS statistics. Users
 #' can access ACS data from the U.S. Census Bureau via [Data.census.gov](https://data.census.gov/table/ACSDT5Y2020.B15003).
@@ -1061,10 +1061,10 @@ add_education_attainment <- function(tib)
 
   tib_valid <- left_join(tib_valid, edu_data, by = c("GEOID", "state", "year")) %>%
     mutate(
-      education_attainment = ifelse(twenty_five_and_older > 0,
+      education_attainment_community = ifelse(twenty_five_and_older > 0,
                                     (college_degree / twenty_five_and_older) * 100,
                                     NA_real_),
-      education_attainment = scales::percent(education_attainment / 100, accuracy = 0.01)
+      education_attainment_community = scales::percent(education_attainment_community / 100, accuracy = 0.01)
     ) %>%
     select(-twenty_five_and_older, -college_degree)
 
