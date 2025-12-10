@@ -1042,7 +1042,6 @@ add_education_attainment <- function(tib)
       geography = "tract",
       state = st,
       variables = c(
-        Associates = "B15003_021",
         Bachelor = "B15003_022",
         Master = "B15003_023",
         Professional = "B15003_024",
