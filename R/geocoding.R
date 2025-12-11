@@ -4015,6 +4015,9 @@ add_pct_unionized <- function(tib, current_year = 2025, default_year = 2024)
 #'
 #' @description
 #' Glossary for variables and functions: [Glossary](https://docs.google.com/document/d/1r7E8aK60fNnDKe8ZtFaBNqZ3VAQXjU62YCb9vlPllfk/edit?usp=sharing)
+#'
+#' Direct Link: https://docs.google.com/document/d/1r7E8aK60fNnDKe8ZtFaBNqZ3VAQXjU62YCb9vlPllfk/edit?usp=sharing
+#'
 #' ⚠️ **Note:** Data must be in tibble or vector form, read parameter descriptions for formatting break down.
 #' You must have these packages installed for use of this package/function.
 #' [`Street`], [`City`], [`State`] [`Area Code`] format works best for address.
