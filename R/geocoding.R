@@ -1011,7 +1011,7 @@ add_education_attainment <- function(tib)
 
   tib_valid <- tib %>% filter(!is.na(GEOID))
   tib_invalid <- tib %>% filter(is.na(GEOID)) %>%
-    mutate(education_attainment = NA_character_)
+    mutate(education_attainment_community = NA_character_)
 
   state_years <- tib_valid %>%
     select(state, year) %>%
