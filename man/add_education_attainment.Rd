@@ -22,7 +22,7 @@ This function extracts and processes educational attainment data from the
 U.S. Census Bureau’s American Community Survey (ACS) to assess the
 educational environment of a respondent's geographic area. The measure is
 based on the percentage of individuals with a bachelor’s degree or higher in
-a given census tract. The data are sourced from ACS 5-year estimates and
+a given census tract(community based). The data are sourced from ACS 5-year estimates and
 updated annually. The function requires a geocoded address to determine the
 respondent's location and linka it to the appropriate ACS statistics. Users
 can access ACS data from the U.S. Census Bureau via \href{https://data.census.gov/table/ACSDT5Y2020.B15003}{Data.census.gov}.
