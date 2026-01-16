@@ -3997,6 +3997,7 @@ add_min_wage <- function(tib, current_fed_min_wage = 7.25)
       actual_year == 1995 ~ 1994,
       actual_year == 1999 ~ 1998,
       is.na(actual_year) ~ 2025,
+      actual_year > 2025 ~ 2025,
       TRUE ~ actual_year))
 
   required_data <- tibble()
