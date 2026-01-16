@@ -2540,17 +2540,20 @@ add_AQI <- function(tib)
 {
   tib <- tib %>%
     mutate(AQI_year = case_when(
-      actual_year > 2024 ~ 2024,
+      actual_year > 2025 ~ 2025,
       actual_year < 1980 ~ 1980,
       is.na(actual_year) ~ 2024,
       TRUE ~ actual_year),
       county = case_when(
+        str_detect(county, regex("\\bmunicipality\\b", ignore_case = TRUE)) ~
+          str_replace(county,regex("\\bmunicipality\\b.*$", ignore_case = TRUE),"County"),
         str_detect(county, regex("\\bborough\\b", ignore_case = TRUE)) ~
           str_replace(county, regex("\\bborough\\b", ignore_case = TRUE), "County"),
         !str_detect(county, regex("\\bcounty\\b", ignore_case = TRUE)) ~
           paste(county, "County"),
         TRUE ~ county))
 
+  AQI_twenty_five <- read.csv("geodeterminants_datasets/clean_AQI/AQI_twenty_five.csv")
   AQI_twenty_four <- read.csv("geodeterminants_datasets/clean_AQI/AQI_twenty_four.csv")
   AQI_twenty_three <- read.csv("geodeterminants_datasets/clean_AQI/AQI_twenty_three.csv")
   AQI_twenty_two <- read.csv("geodeterminants_datasets/clean_AQI/AQI_twenty_two.csv")
@@ -2598,7 +2601,8 @@ add_AQI <- function(tib)
   AQI_eighty <- read.csv("geodeterminants_datasets/clean_AQI/AQI_eighty.csv")
 
   binded_data <- tibble()
-  binded_data <- bind_rows(AQI_twenty_four) %>%
+  binded_data <- bind_rows(AQI_twenty_five) %>%
+    bind_rows(AQI_twenty_four) %>%
     bind_rows(AQI_twenty_three) %>%
     bind_rows(AQI_twenty_two) %>%
     bind_rows(AQI_twenty_one) %>%
