@@ -1784,10 +1784,14 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
     select(address, state, county, GEOID, GEOID_county, actual_year) %>%
     filter(!is.na(GEOID) & !is.na(GEOID_county)) %>%
     mutate(decennial_year = case_when(
+      actual_year > 2020 ~ 2020,
       actual_year < 2010 ~ 2010,
-      (actual_year %% 10) < 5 ~ floor(actual_year / 10) * 10,
-      (actual_year %% 10) >= 5 ~ ceiling(actual_year / 10) * 10,
-      is.na(actual_year) ~ 2020))
+      is.na(actual_year) ~ 2020,
+      TRUE ~ floor(actual_year / 10) * 10
+    ))
+
+  tib_valid_one <- NULL
+  combine_sf1 <- NULL
 
   dhc_results <- tibble()
   sf1_results <- tibble()
@@ -2234,8 +2238,19 @@ add_decennial_dissimilarity <- function(tib, minority_group_code_dhc = NULL, min
       mutate(decennial_dissimilarity_index_sf1 = summation_sf1 * 0.5) %>%
       select(GEOID_county, state, county, decennial_year, decennial_dissimilarity_index_sf1) %>% distinct()
   }
-    tib_valid <- tib_valid %>% select(-county) %>% left_join(tib_valid_one, by = c("address", "GEOID","GEOID_county", "state", "decennial_year", "actual_year")) %>%
+  tib_valid <- tib_valid %>% select(-county)
+
+  if(!is.null(tib_valid_one))
+  {
+    tib_valid <- tib_valid %>%
+      left_join(tib_valid_one, by = c("address", "GEOID","GEOID_county", "state", "decennial_year", "actual_year"))
+  }
+  if(!is.null(combine_sf1))
+  {
+    tib_valid <- tib_valid %>%
       left_join(combine_sf1, by = c("GEOID_county", "state", "county", "decennial_year"))
+  }
+
   if("decennial_dissimilarity_index_dhc" %in% names(tib_valid) & "decennial_dissimilarity_index_sf1" %in% names(tib_valid))
   {
     tib_valid <- tib_valid %>%
