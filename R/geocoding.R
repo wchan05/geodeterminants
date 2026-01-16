@@ -4094,7 +4094,7 @@ add_pct_unionized <- function(tib, current_year = 2025, default_year = 2024)
       TRUE ~ actual_year)) %>%
     left_join(union_data, by = c("union_year" = "year", "state")) %>%
     mutate(mem_unions = mem_unions / 100) %>%
-    mutation(rep_unions = rep_unions / 100)
+    mutate(rep_unions = rep_unions / 100)
 
   return(tib)
 }
