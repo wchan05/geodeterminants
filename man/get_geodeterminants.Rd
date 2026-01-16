@@ -51,9 +51,7 @@ Health(SDOH)} data appended for each address if data is available
 according to each determinants' function criteria
 }
 \description{
-Glossary for variables and functions: \href{https://docs.google.com/document/d/1r7E8aK60fNnDKe8ZtFaBNqZ3VAQXjU62YCb9vlPllfk/edit?usp=sharing}{Glossary}
-
-Direct Link: https://docs.google.com/document/d/1r7E8aK60fNnDKe8ZtFaBNqZ3VAQXjU62YCb9vlPllfk/edit?usp=sharing
+Glossary for variables and functions: run \code{glossary()} in the .R file
 
 ⚠️ \strong{Note:} Data must be in tibble or vector form, read parameter descriptions for formatting break down.
 You must have these packages installed for use of this package/function.
