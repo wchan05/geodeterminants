@@ -1,3 +1,70 @@
+#' Glossary Getter
+#'
+#' @returns Glossary with function and variable names, their categorizations, and definitions
+#'
+#' @importFrom tibble tibble
+#' @importFrom utils View
+#'
+#' @export
+glossary <- function()
+{
+  glossary <- tibble(
+    Term = c("*Note", "*Note", "add_AQI()", "add_concentrated_poverty()",
+             "add_decennial_dissimilarity()",
+             "add_dissimilarity_index()", "add_education_attainment()",
+             "add_EJ_index()", "get_geodeterminants()", "add_ICE()", "add_min_wage()",
+             "add_pct_unionized()", "add_RFEI()", "add_separation_index()",
+             "add_SVI()", "above_federal", "actual_year", "address", "AQI_category", "AQI_med", "AQI_year", "atlas_year", "compare_2020", "concentrated_poverty",
+             "decennial_dissimilarity_index", "decennial_dissimilarity_index_comparision", "decennial_year", "diesel_pm", "dichot_inter_mw", "dissimilarity_index",
+             "education_attainment_community", "ever_above", "GEOID", "GEOID_county", "ICE", "lead_paint", "main_pollutant", "mem_unions", "mw_above _fed", "mw_year",
+             "NATA_cancer", "NATA_resp_haz", "ozone", "particulate_matter", "prox_to_MDWD", "prox_to_NPLS", "prox_to_RMPS", "prox_to_TSDF", "Rep_unions", "RFEI",
+             "separation_index", "SVI", "SVI_flag_meth", "SVI_rank_meth", "traffic_prox_vol", "Unhealthly.Days", "Unhealthly.for.Sensitive.Groups.Days", "union_year", "year"),
+    Type = c(rep("informative", 2), rep("function", 6), "main function", rep("function", 6), rep("variable", 44)),
+    Definition = c("Based on Race/Ethnicity - Dissimilarity Index, Decennial Dissimilarity Index, Separation Index. Everything else is based on the general population for a given census tract or county",
+                   "Learn more about functions by running `?funcation_name(*empty)`", "Adds air quality index measures",
+                   "Adds concentrated poverty measures", "Adds decennial dissimilarity measures",
+                   "Adds dissimilarity index measures", "Adds educational attainment measures",
+                   "Adds environmental justice index measures", "Main function that collectivly gathers all SDOH data",
+                   "Adds income concentration measures", "Adds minimum wage measures", "Adds unionized workers measures",
+                   "Adds traditional retail food environment index measures", "Adds separation index measures",
+                   "Adds social vulnerability measures",
+                   "Coded 1 if the state’s minimum wage is higher than the federal minimum for the portion of the year considered, and 0 if it is equal to or below; higher values indicate greater worker wage protection relative to the federal standard",
+                   "Actual year of diagnosis given by input", "Address of patient",
+                   "0–50: Good, 51–100: Moderate, 101–150: Unhealthy for sensitive groups, 151–200: Unhealthy, 201–300: Very unhealthy, 301–500: Hazardous",
+                   "Median daily AQI for the year from the nearest EPA monitor. EPA converts pollutant concentrations (PM₂.5, O₃, NO₂, CO, SO₂) into health-based index scores; the median reflects typical yearly air quality",
+                   "Adjusted year to available AQI data", "Adjusted year for Atlas data", "2020 Decennial year changed to 2010 for comparison, 2020 data is incomplete until 2030",
+                   "Extent to which residents below poverty live in high-poverty areas (≥40% below FPL). 0 = none, 1 = all; based on ACS 5-year tract data",
+                   "Proportion of one racial/ethnic group that would need to move for identical tract distribution. 0 = full integration, 1 = full segregation",
+                   "Gives 2010 Decennial Dissimilarity Index data for those that fall into the 2020 Decennial Year since not all data is known for 2020 years",
+                   "Year rounded to the nearest 10th for Decennial Dissimilarity", "Estimated annual diesel particulate matter concentration; higher values indicate greater exposure to diesel-related air pollution and associated health risks",
+                   "Dichotomous interaction. A 0/1 variable equal to 1 only if the state’s minimum wage is currently above the federal level and the state has historically had a minimum wage above the federal level; 0 otherwise",
+                   "Measures the evenness of the spatial distribution of two race/ethnic groups across census tracts within a County, quantifying the percentage of one group that would need to move for every tract to match the region’s overall racial composition",
+                   "Represents tract-level distribution of education among all residents, measured as the percentage of adults with a bachelor’s degree or higher in the census tract, uses ACS 5-year estimates",
+                   "Coded 1 if the state has ever had a minimum wage higher than the federal minimum in the year(s) of interest, and 0 if not; this indicates whether the state has historically exceeded federal wage requirements",
+                   "GEOID of a location at tract level", "GEOID of a location at county level", "Degree residents are concentrated at privilege/deprivation extremes: –1 = all deprived, +1 = all privileged, 0 = balanced/no extremes",
+                   "Percent of housing built before 1960; higher values indicate greater potential exposure to lead-based paint hazards", "Main pollutant that is contributing to AQI",
+                   "Percent of wage/salary workers in a union or employee association; excludes self-employed, unpaid family, and military",
+                   "The difference between the state’s effective minimum wage and the federal minimum wage in dollars per hour; higher values indicate a larger wage premium over the federal standard",
+                   "Adjusted year for minimum wage data", "Estimated lifetime cancer risk from air toxics based on the National Air Toxics Assessment; higher values indicate greater cancer risk from air pollution",
+                   "Respiratory hazard index from the National Air Toxics Assessment; higher values indicate greater potential risk for non-cancer respiratory effects from air pollution",
+                   "Annual average of daily maximum 8-hour ozone concentrations; higher values indicate higher exposure to ground-level ozone, which can affect respiratory health",
+                   "Average annual concentration of fine particulate matter (PM2.5) in the air; higher values indicate worse air quality and greater potential health risk",
+                   "Distance to major direct water dischargers; lower distance indicates higher potential exposure to waterborne pollutants",
+                   "Distance to National Priorities List (Superfund) sites; lower distance (higher values in EJSCREEN scoring) indicates greater potential exposure to contaminated sites",
+                   "Distance to Risk Management Plan facilities; lower distance indicates higher potential exposure to industrial chemical hazards",
+                   "Distance to Treatment, Storage, and Disposal Facilities; lower distance indicates greater potential exposure to hazardous waste operations",
+                   "Percent of wage/salary workers who are union members or covered by a union contract; excludes self-employed, unpaid family, and military",
+                   "Calculated as (fast food restaurants + convenience stores) ÷ grocery stores; higher values indicate a greater relative presence of unhealthy food outlets in the local area",
+                   "Measures the degree to which two groups live in separate, homogeneous areas, with the reference group across census tracts being set to 'Not Hispanic or Latino White' to match the general rules of other studies",
+                   "CDC SVI: combines 15 social factors (poverty, disability, minority status, housing, transport) to reflect tract vulnerability to emergencies",
+                   "Flag Method. Variables at or above the 90th percentile are flagged as 1 (high vulnerability), others as 0; theme and overall flags are sums of these variable flags, showing the count of high-vulnerability indicators in that tract",
+                   "Rank Method. Each tract is assigned a percentile rank (0–1) for each variable, each theme, and overall; higher values indicate greater vulnerability compared to other tracts",
+                   "Proximity to major roads multiplied by traffic volume; higher values indicate greater potential exposure to traffic-related air pollution",
+                   "The number of days in a year that are categorized as unhealthy across all groups", "The number of days in a year that are categorized as unhealthy for sensitive groups",
+                   "Adjusted year for union data", "Adjusted year of diagnosis to give most accurate data and avoid NAs (for available acs data accuracy)"))
+  glossary <- as.data.frame(glossary)
+  return(View(glossary))
+}
 # year mods. --------------------------------------------------------------
 #' Preserves year of diagnosis from the input data
 #'
