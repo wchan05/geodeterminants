@@ -3,7 +3,7 @@
     packageStartupMessage("
 Thank you for loading geodeterminants!
 Use `?geodeterminants` to see available functions and information.
-USe `glossary()` to obtain access to the function and variable glossary.
+USe `glossary()` or `View(glossary())` (better format) to obtain access to the function and variable glossary.
 
 These packages must be installed for proper functionality:
 install.packages(c(\"tidyverse\", \"tidygeocoder\", \"tibble\", \"tidycensus\", \"tigris\", \"sf\", \"readxl\"))

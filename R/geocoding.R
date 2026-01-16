@@ -63,7 +63,7 @@ glossary <- function()
                    "The number of days in a year that are categorized as unhealthy across all groups", "The number of days in a year that are categorized as unhealthy for sensitive groups",
                    "Adjusted year for union data", "Adjusted year of diagnosis to give most accurate data and avoid NAs (for available acs data accuracy)"))
   glossary <- as.data.frame(glossary)
-  return(View(glossary))
+  return(glossary)
 }
 # year mods. --------------------------------------------------------------
 #' Preserves year of diagnosis from the input data
@@ -4102,7 +4102,7 @@ add_pct_unionized <- function(tib, current_year = 2025, default_year = 2024)
 #' Get the Social Determinants of Health for each Address
 #'
 #' @description
-#' Glossary for variables and functions: run `glossary()` in the .R file
+#' Glossary for variables and functions: run `glossary()` or `View(glossary())` (better format) in the .R file
 #'
 #' ⚠️ **Note:** Data must be in tibble or vector form, read parameter descriptions for formatting break down.
 #' You must have these packages installed for use of this package/function.
