@@ -3,7 +3,7 @@
     packageStartupMessage("
 Thank you for loading geodeterminants!
 Use `?geodeterminants` to see available functions and information.
-USe `glossary()` or `View(glossary())` (better format) to obtain access to the function and variable glossary.
+Use `glossary()` or `View(glossary())` (better format) to obtain access to the function and variable glossary.
 
 These packages must be installed for proper functionality:
 install.packages(c(\"tidyverse\", \"tidygeocoder\", \"tibble\", \"tidycensus\", \"tigris\", \"sf\", \"readxl\"))
@@ -25,6 +25,15 @@ library(remotes)
 install_github(\"wchan05/geodeterminants\", build_vignettes = (TRUE or FALSE))
 
 Load with packages with: library(package_name)
+library(remotes)
+library(geodeterminants)
+library(tidyverse)
+library(tidygeocoder)
+library(tibble)
+library(tidycensus)
+library(tigris)
+library(sf)
+library(readxl)
 
 ***You MUST download csv and excel files from:***
 https://wchan05.github.io/data_access/
