@@ -3617,15 +3617,21 @@ add_RFEI <- function(tib)
 #' @export
 add_EJ_index <- function(tib)
 {
-  clean_twenty_four <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2024_clean.csv")
-  clean_twenty_three <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2023_clean.csv")
-  clean_twenty_two <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2022_clean.csv")
-  clean_twenty_one <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2021_clean.csv")
-  clean_twenty <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2020_clean.csv")
-  clean_nineteen <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2019_clean.csv")
-  clean_eighteen <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2018_clean.csv")
-  clean_seventeen <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2017_clean.csv")
-  clean_sixteen <- read.csv("geodeterminants_datasets/EJ_index_data_clean/EJSCREEN_2016_clean.csv")
+  ej_data <-
+    list(
+      "2016" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2016_clean.csv"),
+      "2017" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2017_clean.csv"),
+      "2018" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2018_clean.csv"),
+      "2019" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2019_clean.csv"),
+      "2020" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2020_clean.csv"),
+      "2021" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2021_clean.csv"),
+      "2022" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2022_clean.csv"),
+      "2023" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2023_clean.csv"),
+      "2024" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2024_clean.csv"))
+
+  cols <- c("particulate_matter","ozone","diesal_pm","traffic_prox_vol",
+            "lead_paint","prox_to_NPLS","prox_to_RMPS","prox_to_TSDF",
+            "prox_to_MDWD","NATA_cancer","NATA_resp_haz")
 
   clean_tib <- tib %>%
     select(GEOID, actual_year) %>%
@@ -3634,198 +3640,43 @@ add_EJ_index <- function(tib)
       actual_year < 2016 ~ 2016,
       actual_year > 2024 ~ 2024,
       is.na(actual_year) ~ 2024,
-      TRUE ~ actual_year)) %>%
-    mutate(particulate_matter = NA,
-           ozone = NA,
-           diesal_pm = NA,
-           traffic_prox_vol = NA,
-           lead_paint = NA,
-           prox_to_NPLS = NA,
-           prox_to_RMPS = NA,
-           prox_to_TSDF = NA,
-           prox_to_MDWD = NA,
-           NATA_cancer = NA,
-           NATA_resp_haz = NA)
+      TRUE ~ actual_year))
 
-  rows <- seq_len(nrow(clean_tib))
-
-  for(i in rows)
+  for(col in cols)
   {
-    if(clean_tib$EJ_year[i] == 2024)
-    {
-      this_data  <- clean_twenty_four %>%
-        filter(clean_twenty_four$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-      }
-    }
-    else if(clean_tib$EJ_year[i] == 2023)
-    {
-      this_data  <- clean_twenty_three %>%
-        filter(clean_twenty_three$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-        clean_tib[i, "NATA_cancer"] = this_data[,"NATA_cancer"]
-        clean_tib[i, "NATA_resp_haz"] = this_data[,"NATA_resp_haz"]
-      }
-    }
-    else if(clean_tib$EJ_year[i] == 2022)
-    {
-      this_data  <- clean_twenty_two %>%
-        filter(clean_twenty_two$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-        clean_tib[i, "NATA_cancer"] = this_data[,"NATA_cancer"]
-        clean_tib[i, "NATA_resp_haz"] = this_data[,"NATA_resp_haz"]
-      }
-    }
-    else if(clean_tib$EJ_year[i] == 2021)
-    {
-      this_data  <- clean_twenty_one %>%
-        filter(clean_twenty_one$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-        clean_tib[i, "NATA_cancer"] = this_data[,"NATA_cancer"]
-        clean_tib[i, "NATA_resp_haz"] = this_data[,"NATA_resp_haz"]
-      }
-    }
-    else if(clean_tib$EJ_year[i] == 2020)
-    {
-      this_data  <- clean_twenty %>%
-        filter(clean_twenty$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-        clean_tib[i, "NATA_cancer"] = this_data[,"NATA_cancer"]
-        clean_tib[i, "NATA_resp_haz"] = this_data[,"NATA_resp_haz"]
-      }
-    }
-    else if(clean_tib$EJ_year[i] == 2019)
-    {
-      this_data  <- clean_nineteen %>%
-        filter(clean_nineteen$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-        clean_tib[i, "NATA_cancer"] = this_data[,"NATA_cancer"]
-        clean_tib[i, "NATA_resp_haz"] = this_data[,"NATA_resp_haz"]
-      }
-    }
-    else if(clean_tib$EJ_year[i] == 2018)
-    {
-      this_data  <- clean_eighteen %>%
-        filter(clean_eighteen$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-        clean_tib[i, "NATA_cancer"] = this_data[,"NATA_cancer"]
-        clean_tib[i, "NATA_resp_haz"] = this_data[,"NATA_resp_haz"]
-      }
-    }
-    else if(clean_tib$EJ_year[i] == 2017)
-    {
-      this_data  <- clean_seventeen %>%
-        filter(clean_seventeen$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-        clean_tib[i, "NATA_cancer"] = this_data[,"NATA_cancer"]
-        clean_tib[i, "NATA_resp_haz"] = this_data[,"NATA_resp_haz"]
-      }
-    }
-    else
-    {
-      this_data  <- clean_sixteen %>%
-        filter(clean_sixteen$GEOID == clean_tib$GEOID[i])
-      if(nrow(this_data) > 0)
-      {
-        clean_tib[i, "particulate_matter"] = this_data[,"particulate_matter"]
-        clean_tib[i, "ozone"] = this_data[,"ozone"]
-        clean_tib[i, "diesal_pm"] = this_data[,"diesal_pm"]
-        clean_tib[i, "traffic_prox_vol"] = this_data[,"traffic_prox_vol"]
-        clean_tib[i, "lead_paint"] = this_data[,"lead_paint"]
-        clean_tib[i, "prox_to_NPLS"] = this_data[,"prox_to_NPLS"]
-        clean_tib[i, "prox_to_RMPS"] = this_data[,"prox_to_RMPS"]
-        clean_tib[i, "prox_to_TSDF"] = this_data[,"prox_to_TSDF"]
-        clean_tib[i, "prox_to_MDWD"] = this_data[,"prox_to_MDWD"]
-        clean_tib[i, "NATA_cancer"] = this_data[,"NATA_cancer"]
-        clean_tib[i, "NATA_resp_haz"] = this_data[,"NATA_resp_haz"]
-      }
-    }
+    clean_tib[[col]] <- NA
   }
-  clean_tib <- clean_tib %>% distinct()
 
-  tib <- tib %>%
-    left_join(clean_tib, by = c("GEOID", "actual_year"))
+  for(i in seq_len(nrow(clean_tib)))
+  {
+    found <- FALSE
+    target_year <- clean_tib$EJ_year[i]
 
+    years_to_check <- c(target_year, setdiff(2016:2024, target_year))
+
+    for(yr in years_to_check)
+    {
+      this_data <- ej_data[[as.character(yr)]] %>%
+        filter(GEOID == clean_tib$GEOID[i])
+
+      if(nrow(this_data) > 0)
+      {
+        for(col in cols)
+        {
+          if(col %in% names(this_data))
+          {
+            clean_tib[i, col] <- this_data[[col]][1]
+          }
+        }
+        clean_tib$EJ_year[i] <- yr
+        found <- TRUE
+        break
+      }
+    }
+    if(!found) clean_tib$EJ_year[i] <- NA
+  }
+
+  tib <- tib %>% left_join(clean_tib, by = c("GEOID", "actual_year"))
   return(tib)
 }
 
