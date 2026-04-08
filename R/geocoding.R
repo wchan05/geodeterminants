@@ -3619,15 +3619,15 @@ add_EJ_index <- function(tib)
 {
   ej_data <-
     list(
-      "2016" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2016_clean.csv"),
-      "2017" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2017_clean.csv"),
-      "2018" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2018_clean.csv"),
-      "2019" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2019_clean.csv"),
-      "2020" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2020_clean.csv"),
-      "2021" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2021_clean.csv"),
-      "2022" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2022_clean.csv"),
-      "2023" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2023_clean.csv"),
-      "2024" = read.csv("EJ_index_data_clean_copy/EJSCREEN_2024_clean.csv"))
+      "2016" = read.csv("EJ_index_data_clean/EJSCREEN_2016_clean.csv"),
+      "2017" = read.csv("EJ_index_data_clean/EJSCREEN_2017_clean.csv"),
+      "2018" = read.csv("EJ_index_data_clean/EJSCREEN_2018_clean.csv"),
+      "2019" = read.csv("EJ_index_data_clean/EJSCREEN_2019_clean.csv"),
+      "2020" = read.csv("EJ_index_data_clean/EJSCREEN_2020_clean.csv"),
+      "2021" = read.csv("EJ_index_data_clean/EJSCREEN_2021_clean.csv"),
+      "2022" = read.csv("EJ_index_data_clean/EJSCREEN_2022_clean.csv"),
+      "2023" = read.csv("EJ_index_data_clean/EJSCREEN_2023_clean.csv"),
+      "2024" = read.csv("EJ_index_data_clean/EJSCREEN_2024_clean.csv"))
 
   cols <- c("particulate_matter","ozone","diesal_pm","traffic_prox_vol",
             "lead_paint","prox_to_NPLS","prox_to_RMPS","prox_to_TSDF",
